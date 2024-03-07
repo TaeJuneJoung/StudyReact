@@ -159,3 +159,90 @@ export default App;
 ```
 
 Header.jsx부분에만 사용되는 것이 아닌 App.jsx에 header > h1 태그를 만들어서 진행하면 이 태그에도 그대로 Header.css 내용이 적용되었다.
+
+
+### props.children
+
+```jsx
+<TabButton>Components</TabButton>
+```
+
+해당 코드와 같이 속성으로 넣은 것이 아니라 컴포넌트 안에 글자를 쓴 것을 받는 방법으로 `props.children` 방식을 사용할 수 있다.
+
+
+```jsx
+export default function TabButton(props) {
+	return <li><button>{props.children}</button></li>;
+}
+```
+
+다음과 같이 적용할 수 있다.
+
+### event
+
+```jsx
+// TabButton.jsx
+
+export default function TabButton({ children }) {
+  function onSelect() {
+    console.log(`${children}`)
+  }
+
+	return (
+		<li>
+			<button onClick={onSelect}>{children}</button>
+		</li>
+	);
+}
+```
+
+보통의 클릭 이벤트는 다음과 같이 처리하나 파라미터를 받아서 처리해야할 경우는 다음과 같이 할 수 있다.
+
+```jsx
+// App.jsx
+
+function App() {
+  function handleSelect(selectButton) {
+    console.log(selectButton)
+  }
+
+  return (    
+    <div>
+      <Header />
+      <main>
+        <section id="core-concepts">
+          <h2>Core Concepts</h2>
+          <ul>
+            <CoreConcept {...CORE_CONCEPTS[0]} />
+            <CoreConcept {...CORE_CONCEPTS[1]} />
+            <CoreConcept {...CORE_CONCEPTS[2]} />
+            <CoreConcept {...CORE_CONCEPTS[3]} />
+          </ul>
+        </section>
+        <section id="examples">
+          <h2>Examples</h2>
+          <menu>
+            <TabButton onSelect={() => handleSelect('components')}>Components</TabButton>
+            <TabButton onSelect={() => handleSelect('jsx')}>JSX</TabButton>
+            <TabButton onSelect={() => handleSelect('props')}>Props</TabButton>
+            <TabButton onSelect={() => handleSelect('state')}>State</TabButton>
+          </menu>
+
+        </section>
+      </main>
+    </div>
+  );
+}
+```
+
+```jsx
+// TabButton.jsx
+export default function TabButton({ children, onSelect }) {
+	return (
+		<li>
+			<button onClick={onSelect}>{children}</button>
+		</li>
+	);
+}
+```
+
