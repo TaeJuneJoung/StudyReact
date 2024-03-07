@@ -117,3 +117,45 @@ function App() {
   );
 }
 ```
+
+**파일 모듈(분리)화**
+
+Header와 CoreConcept을 따로 빼서 components 폴더에 두었다.
+
+import와 export도 해당 부분에 맞게 설정 필요
+
+이후, index.css에서 있던 Header에 쓰는 것을 따로 Header.css를 만들어서 처리
+
+⚠️해당 부분에서만 사용되지 않고 전체적으로 사용은 되었다.
+
+```jsx
+import { CORE_CONCEPTS } from './data.js';
+import Header from './components/Header/Header.jsx';
+import { CoreConcept } from './components/CoreConcept.jsx';
+
+function App() {
+  return (
+    <div>
+      <header>
+        <h1>Hello World</h1>
+      </header>
+      <Header />
+      <main>
+        <section id="core-concepts">
+          <h2>Core Concepts</h2>
+          <ul>
+            <CoreConcept {...CORE_CONCEPTS[0]} />
+            <CoreConcept {...CORE_CONCEPTS[1]} />
+            <CoreConcept {...CORE_CONCEPTS[2]} />
+            <CoreConcept {...CORE_CONCEPTS[3]} />
+          </ul>
+        </section>
+      </main>
+    </div>
+  );
+}
+
+export default App;
+```
+
+Header.jsx부분에만 사용되는 것이 아닌 App.jsx에 header > h1 태그를 만들어서 진행하면 이 태그에도 그대로 Header.css 내용이 적용되었다.
