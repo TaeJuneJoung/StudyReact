@@ -171,3 +171,87 @@ return (
 )
 ```
 
+## 컴포넌트 타입 동적으로 활용하기
+
+`menu`태그를 동적으로 받기 위해서 다음과 같이 변경.
+
+```jsx
+export default function Tabs({ children, buttons, buttonsContainer }) {
+  const ButtonContainer = buttonsContainer;
+  return (
+    <>
+      <ButtonContainer>{buttons}</ButtonContainer>
+      {children}
+    </>
+  )
+}
+```
+
+커스텀 컴포넌트에 대해서는 앞에 들자가 대문자로 와야하기에 변수에서 변경해주거나 아래와 같이 처음부터 대문자로 보내는 방법이 있다.
+
+```jsx
+export default function Tabs({ children, buttons, ButtonsContainer }) {
+  return (
+    <>
+      <ButtonContainer>{buttons}</ButtonContainer>
+      {children}
+    </>
+  )
+}
+```
+
+당연히 `menu`태그 말고도 커스텀 컴포넌트 등 다양하게 보낼 수 있다.
+
+```jsx
+// Examples.jsx
+return (
+  <Section title="Examples" id="examples">
+    <Tabs
+      buttonsContainer="menu" {/* 기존 HTML 태그들은 문자 형태 */}
+      buttons={
+        <>
+          <TabButton
+            isSelected={selectedTopic === 'components'}
+            onClick={() => handleSelect('components')}
+          >
+            Components
+          </TabButton>
+          <TabButton
+            isSelected={selectedTopic === 'jsx'}
+            onClick={() => handleSelect('jsx')}
+          >
+            JSX
+          </TabButton>
+          <TabButton
+            isSelected={selectedTopic === 'props'}
+            onClick={() => handleSelect('props')}
+          >
+            Props
+          </TabButton>
+          <TabButton
+            isSelected={selectedTopic === 'state'}
+            onClick={() => handleSelect('state')}
+          >
+            State
+          </TabButton>
+        </>
+      }
+    >
+      {tabContent}
+    </Tabs>
+  </Section>
+)
+```
+
+default 파라미터도 가능하여
+```jsx
+export default function Tabs({ children, buttons, ButtonsContainer = 'menu'}) {
+  return (
+    <>
+      <ButtonContainer>{buttons}</ButtonContainer>
+      {children}
+    </>
+  )
+}
+```
+이렇게도 처리 가능
