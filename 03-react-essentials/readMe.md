@@ -246,3 +246,75 @@ export default function TabButton({ children, onSelect }) {
 }
 ```
 
+### 조건적 콘텐츠 렌더링
+
+1. 삼항 연산자
+```jsx
+{!selectTopic ? <p>Please select a topic.</p> : (
+  <div id="tab-content">
+  <h3>{EXAMPLES[selectTopic].title}</h3>
+  <p>{EXAMPLES[selectTopic].description}</p>
+  <pre>
+    <code>
+      {EXAMPLES[selectTopic].code}
+    </code>
+  </pre>
+</div>
+)}
+```
+
+2. && 연산자
+```jsx
+{!selectTopic && <p>Please select a topic.</p>}
+{selectTopic &&
+  (<div id="tab-content">
+    <h3>{EXAMPLES[selectTopic].title}</h3>
+    <p>{EXAMPLES[selectTopic].description}</p>
+    <pre>
+      <code>
+        {EXAMPLES[selectTopic].code}
+      </code>
+    </pre>
+  </div>
+)}
+```
+
+3. 변수 처리
+```jsx
+let topicContent = <p>Please select a topic.</p>;
+
+if (selectTopic) {
+  <div id="tab-content">
+    <h3>{EXAMPLES[selectTopic].title}</h3>
+    <p>{EXAMPLES[selectTopic].description}</p>
+    <pre>
+      <code>
+        {EXAMPLES[selectTopic].code}
+      </code>
+    </pre>
+  </div>
+}
+
+{topicContent}
+```
+
+### List 데이터 동적 출력
+
+```jsx
+<CoreConcept {...CORE_CONCEPTS[0]} />
+<CoreConcept {...CORE_CONCEPTS[1]} />
+<CoreConcept {...CORE_CONCEPTS[2]} />
+<CoreConcept {...CORE_CONCEPTS[3]} />
+```
+
+기존에 했던 방식을 map함수를 이용하여 동적으로 처리하였다. 동적으로 처리하지 않으면 개수의 변동이 생기면 문제가 되기 때문이다.
+
+```jsx
+{CORE_CONCEPTS.map(conceptItem => (
+  <CoreConcept key={conceptItem.title} {...conceptItem} />
+))}
+```
+
+왜 화살표 함수를 사용할 때 `{}`가 아닌 `()`으로 사용하였을까?
+
+물론 괄호를 사용하지 않고도 동작은 한다.
