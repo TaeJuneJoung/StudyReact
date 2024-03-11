@@ -91,3 +91,56 @@ export default function Player({ initialName, symbol }) {
 ```
 
 `onChange`를 통하여 이벤트를 처리하고 `value`값으로 해당 useState의 값을 연결하여 상태 적용을 하였다. 이벤트를 연결한 `handleChange`에서 event값에 접근하여 변경될때마다 값을 적용하게 하였다.
+
+## 불변의 객체 State 업데이트하기
+
+[Reference vs Primitive Values](https://academind.com/tutorials/reference-vs-primitive-values)
+
+```js
+const updatedUser = user;
+user.name = 'Max';
+```
+이러한 Copy방식을 사용하면 얕은 복사이기에 원본/카피값에 영향을 준다.
+
+```js
+const updatedUser = { ...user }; // Spread Operator
+updatedUser.name = 'Max';
+```
+깊은 복사 방식을 사용하여 원본값에 영향이 없게 하는 것이 좋다.
+
+
+```jsx
+const initalGameBoard = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null],
+];
+
+const [gameBoard, setGameBoard] = useState(initalGameBoard);
+
+function handleSelectSquare(rowIndex, colIndex) {
+  setGameBoard((prevGameBoard) => {
+    prevGameBoard[rowIndex][colIndex] = 'X';
+    return prevGameBoard;
+  });
+}
+```
+이러한 방식을 사용하게 되면 메모리 속의 기존 값을 바로 변경하게 된다. 이 시점은 리액트가 실행하는 예정된 상태 업데이트보다 이전에 이뤄지게 된다. 그러므로 알 수 없는 버그나 부작용이 생길 수 있다.
+
+```jsx
+function handleSelectSquare(rowIndex, colIndex) {
+  setGameBoard((prevGameBoard) => {
+    const updatedBoard = [...prevGameBoard.map(innerArray => [...innerArray])];
+    updatedBoard[rowIndex][colIndex] = 'X';
+    return updatedBoard;
+  });
+}
+```
+이러한 방식으로 처리하는 것을 권장한다.
+
+## 다시 볼 부분
+
+Log.jsx 만드는 부분부터 이해가 잘 안감
+
+해당 부분은 82강부터
+
