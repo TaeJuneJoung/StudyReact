@@ -94,3 +94,28 @@ const emailNotValid = submitted && !enteredEmail.includes("@");
 `$invalid`에 $를 넣은 이유는 내장 속성과 충돌하지 않게 하기 위해서이다.
 
 사용하지 않으면 console창에서 false이기에 에러가 생기고 있는 것을 확인할 수 있다.
+
+## Tailwind CSS
+
+https://tailwindcss.com/docs/guides/vite
+
+```bash
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+```css
+/* index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+VS CODE:Extension -> Tailwind CSS IntelliSense 설치
+
+> **선수 과정 필요**
+>
+> 1. CSS
+> 2. Tailwind CSS
+>
+> 진행 방향이 바로 작성이기에 내용을 모르면 의미없는 강의 Section
