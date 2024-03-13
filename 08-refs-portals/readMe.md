@@ -377,3 +377,89 @@ export default ResultModal;
 ```
 
 이렇게 변경하고 난 뒤에 TimerChallenge.jsx에서 호출할 때는 `dialog.current.open();`이렇게 변경되었다.
+
+## 모달은 ESC 키로 닫기
+
+```jsx
+<dialog ref={dialog} className="result-modal" onClose={onReset}>
+  <form method="dialog" onSubmit={onReset}>
+    <button>Close</button>
+  </form>
+</dialog>
+```
+
+`onClose`를 통해서 ESC키를 눌렀을 때도 적용
+
+🤔TODO: 바깥 부분을 눌렀을 때는 어떻게 할 것인가?
+
+## Portals(포탈) 소개 및 이해하기
+
+Modal창을 사용하는데 해당 요소들이 깊이가 깊게 있기에 body바로 아래나 body 끝에 놓아주는 작업을 해야 한다.
+Portal의 의미는 컴포넌트 렌더링이 될 HTML코드를 DOM 내에 다른 곳으로 옮기는 것이다.
+
+```jsx
+// ResultModal.jsx
+return createPortal(
+  <dialog ref={dialog} className="result-modal" onClose={onReset}>
+    <h2>Your Score: </h2>
+    {isUserLost && <h2>You lost</h2>}
+    {!isUserLost && <h2>Your Score: {score}</h2>}
+    <p>
+      The target time was <strong>{targetTime} seconds.</strong>
+    </p>
+    <p>
+      You stopped the timer with{" "}
+      <strong>{formattedTimeRemaining} seconds left.</strong>
+    </p>
+    <form method="dialog" onSubmit={onReset}>
+      <button>Close</button>
+    </form>
+  </dialog>,
+  document.getElementById("modal")
+);
+```
+
+```html
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Refs & Portals</title>
+  </head>
+  <body>
+    <div id="modal"></div>
+    <div id="content">
+      <header>
+        <h1>The <em>Almost</em> Final Countdown</h1>
+        <p>Stop the timer once you estimate that time is (almost) up</p>
+      </header>
+      <div id="root"></div>
+    </div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+```
+
+`<div id="modal>`안에 넣으라고 알려주는 것과 같다.
+
+이와 비슷한 코드는 우리가 꼭 사용하는 main.jsx에서 볼수 있다.
+
+```jsx
+// main.jsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+
+ReactDOM.createRoot(document.getElementById("root")).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
+id가 `root`인 곳에 컴포넌트를 생성하라고 하고 있다.
+다른 부분은 해당 코드는 아래에 생성하라는 것이고 Portals는 이동 시키는 것이다.
