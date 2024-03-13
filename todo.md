@@ -5,9 +5,11 @@
 **🤔왜 화살표 함수를 사용할 때 `{}`가 아닌 `()`으로 사용하였을까?**
 
 ```jsx
-{CORE_CONCEPTS.map(conceptItem => (
-  <CoreConcept key={conceptItem.title} {...conceptItem} />
-))}
+{
+  CORE_CONCEPTS.map((conceptItem) => (
+    <CoreConcept key={conceptItem.title} {...conceptItem} />
+  ));
+}
 ```
 
 물론 괄호를 사용하지 않고도 동작은 한다.
@@ -18,3 +20,10 @@
 ## section 04: TIC-TAC-TOE
 
 해당 프로젝트는 추후 다시 만들어볼 것
+
+## section 08: refs / portals
+
+**🤔TODO: forwardRef에 대해서 살펴보자.**
+**🤔TODO: userImperativeHandle에 대해서 살펴보자.**
+
+**🤔TODO: Modal 바깥 부분을 눌렀을 때는 어떻게 할 것인가?**
