@@ -333,3 +333,47 @@ export default ResultModal;
 `forwardRef`함수에 감싸서 변수로 export를 해주어야 하며 `ref`값은 ref로 써서 보내야하고 2번째 파라미터 값으로 받아야 한다. 참고로 첫번째 파라미터는 `props`값인데 `{}`를 통해 구조분해해서 여러값을 나눠 받았을 뿐이다. `ref`값을 저렇게 받을 수 있는 것도 `forwardRef`함수를 쓰기 때문.
 
 🤔TODO: forwardRef에 대해서 살펴보자.
+🤔TODO: userImperativeHandle에 대해서 살펴보자.
+
+## userImperativeHandle 훅으로 컴포넌트 API 노출
+
+큰 프로젝트의 경우에는 다른 개발자가 작성한 코드들을 봐야하는 경우가 많다. 그러기에 세부적인 내부 컴포넌트까지 다 살펴보는 것은 피로할 수 있다. 위에서 작성한 코드에서 `dialog.current.showModal();`부분은 `dialog`태그를 사용해서 `showModal()`를 사용했다는 것을 작성한 개발자는 알 수 있으나, 다른 개발자는 알기 위해서는 자식 컴포넌트까지 들어가서 살펴봐야할 것이다. 살펴봤는데 혹여나 dialog가 아니라 div태그라면 무슨 일인가 싶을 것이다. 그래서 파악하기 쉽게 자신의 함수를 노출하도록 구축하여 해당 함수를 호출하게 하려고 한다.
+
+```jsx
+// ResultModal.jsx
+import { forwardRef, useImperativeHandle, useRef } from "react";
+
+const ResultModal = forwardRef(function ResultModal(
+  { result, targetTime },
+  ref
+) {
+  const dialog = useRef();
+
+  useImperativeHandle(ref, () => {
+    return {
+      open() {
+        dialog.current.showModal();
+      },
+    };
+  });
+
+  return (
+    <dialog ref={dialog} className="result-modal">
+      <h2>Your Score: </h2>
+      <p>
+        The target time was <strong>{targetTime} seconds.</strong>
+      </p>
+      <p>
+        You stopped the timer with <strong>X seconds left.</strong>
+      </p>
+      <form method="dialog">
+        <button>Close</button>
+      </form>
+    </dialog>
+  );
+});
+
+export default ResultModal;
+```
+
+이렇게 변경하고 난 뒤에 TimerChallenge.jsx에서 호출할 때는 `dialog.current.open();`이렇게 변경되었다.
