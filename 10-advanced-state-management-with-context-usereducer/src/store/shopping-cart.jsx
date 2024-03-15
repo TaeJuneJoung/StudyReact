@@ -1,5 +1,10 @@
-import { createContext, useState } from "react";
+import { createContext, useReducer } from "react";
 import { DUMMY_PRODUCTS } from "../dummy-products";
+
+const DISPATCH_TYPE = {
+  ADD: "add",
+  UPDATE: "update",
+};
 
 export const CartContext = createContext({
   items: [],
@@ -7,17 +12,14 @@ export const CartContext = createContext({
   updateCartItemQuantity: () => {},
 });
 
-export default function CartContextProvider({ children }) {
-  const [shoppingCart, setShoppingCart] = useState({
-    items: [],
-  });
-
-  function handleAddItemToCart(id) {
-    setShoppingCart((prevShoppingCart) => {
-      const updatedItems = [...prevShoppingCart.items];
+// 함수 밖에 두는 이유는 컴포넌트가 재실행 될때마다 함수가 새로 정의되지 않게 하기 위해서
+function shoppingCartReducer(state, action) {
+  switch (action.type) {
+    case DISPATCH_TYPE.ADD: {
+      const updatedItems = [...state.items];
 
       const existingCartItemIndex = updatedItems.findIndex(
-        (cartItem) => cartItem.id === id
+        (cartItem) => cartItem.id === action.id
       );
       const existingCartItem = updatedItems[existingCartItemIndex];
 
@@ -28,9 +30,11 @@ export default function CartContextProvider({ children }) {
         };
         updatedItems[existingCartItemIndex] = updatedItem;
       } else {
-        const product = DUMMY_PRODUCTS.find((product) => product.id === id);
+        const product = DUMMY_PRODUCTS.find(
+          (product) => product.id === action.id
+        );
         updatedItems.push({
-          id: id,
+          id: action.id,
           name: product.title,
           price: product.price,
           quantity: 1,
@@ -38,23 +42,21 @@ export default function CartContextProvider({ children }) {
       }
 
       return {
+        ...state,
         items: updatedItems,
       };
-    });
-  }
-
-  function handleUpdateCartItemQuantity(productId, amount) {
-    setShoppingCart((prevShoppingCart) => {
-      const updatedItems = [...prevShoppingCart.items];
+    }
+    case DISPATCH_TYPE.UPDATE: {
+      const updatedItems = [...state.items];
       const updatedItemIndex = updatedItems.findIndex(
-        (item) => item.id === productId
+        (item) => item.id === action.items.id
       );
 
       const updatedItem = {
         ...updatedItems[updatedItemIndex],
       };
 
-      updatedItem.quantity += amount;
+      updatedItem.quantity += action.items.amount;
 
       if (updatedItem.quantity <= 0) {
         updatedItems.splice(updatedItemIndex, 1);
@@ -63,13 +65,40 @@ export default function CartContextProvider({ children }) {
       }
 
       return {
+        ...state,
         items: updatedItems,
       };
+    }
+  }
+}
+
+export default function CartContextProvider({ children }) {
+  const [shoppingCartState, shoppingCartDispatch] = useReducer(
+    shoppingCartReducer,
+    {
+      items: [],
+    }
+  );
+
+  function handleAddItemToCart(id) {
+    shoppingCartDispatch({
+      type: DISPATCH_TYPE.ADD,
+      id: id,
+    });
+  }
+
+  function handleUpdateCartItemQuantity(productId, amount) {
+    shoppingCartDispatch({
+      type: DISPATCH_TYPE.UPDATE,
+      items: {
+        id: productId,
+        amount,
+      },
     });
   }
 
   const ctxValue = {
-    items: shoppingCart.items,
+    items: shoppingCartState.items,
     addItemToCart: handleAddItemToCart,
     updateCartItemQuantity: handleUpdateCartItemQuantity,
   };

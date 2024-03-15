@@ -135,9 +135,13 @@ export default function Cart() {
 
 ## useReducer
 
-하나 또는 그 이상의 복잡한 값을 더 단순한 형태로 만드는 함수
+`reducer` -> 하나 또는 그 이상의 복잡한 값을 더 단순한 형태로 만드는 함수
 example) [5, 10, 100] -(reducer function)-> 115
 
 상태 관리의 목적을 가지고 하나 또는 그 이상의 값을 보다 단순하게 하나의 값으로 줄이는 것
 
-👊🏻TODO: 해당 세션 다시 살펴봐야함
+```jsx
+const [상태값, reducer함수 연결 함수] = useReducer(reducer함수, 초기값)
+```
+
+👊🏻TODO: 해당 세션 강의 내용 없이 혼자 진행해볼 것
