@@ -27,3 +27,7 @@
 **🤔TODO: userImperativeHandle에 대해서 살펴보자.**
 
 **🤔TODO: Modal 바깥 부분을 눌렀을 때는 어떻게 할 것인가?**
+
+## section 10: Context / reducer
+
+- 해당 프로젝트 이후에 다시 작성해보기
