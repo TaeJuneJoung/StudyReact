@@ -367,3 +367,21 @@ const handleRemovePlace = useCallback(function handleRemovePlace() {
 
 컴포넌트가 재실행되었을 때 함수가 재생성되지 않게 함.
 대신에 메모리 내부에 저장한다. 그래서 함수가 재실행 될때마다 메모리에 저장된 함수를 재사용한다.
+
+## useEffect Cleanup: Interval
+
+```jsx
+useEffect(() => {
+  const timer = setInterval(() => {
+    setRemainTime((prevTime) => prevTime - 10);
+  }, 10);
+
+  return () => {
+    clearInterval(timer);
+  };
+}, []);
+```
+
+`remainTime` 상태값을 변화시키기에 컴포넌트가 지속적으로 재사용이 된다.
+이러한 경우에는 모듈화 시켜서 다른 부분들까지 재실행하지 않도록 해주는 것이 좋다.
+그래서 `ProgressBar.jsx`를 따로 두어서 관련된 부분만 따로 컴포넌트화 하였다.
