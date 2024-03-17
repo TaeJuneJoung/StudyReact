@@ -341,3 +341,29 @@ return createPortal(
 
 이 부분에서 `{open ? children : null}` 해당 요소가 작용하고 있기 때문이다.
 해당 요소가 적용되지 않았다면 무한루프에 돌게 된다.
+
+## useCallback 훅
+
+`useCallback(callback, 의존성객체)`
+반환타입은 callback타입과 같다.
+
+`useCallback<T extends Function>(callback: T, deps: DependencyList): T`
+
+```jsx
+const handleRemovePlace = useCallback(function handleRemovePlace() {
+  setPickedPlaces((prevPickedPlaces) =>
+    prevPickedPlaces.filter((place) => place.id !== selectedPlace.current)
+  );
+  // setModalIsOpen(false); // useCallback훅을 사용했기에 해당 처리를 안해도 무한루프에 돌지 않음
+  // 로직적 다른 동작을 위해서 주석 풀고 사용하는 것이 좋음. & 추가적 안정성을 위해서 useCallback도 사용하면 좋음
+
+  const storeIds = JSON.parse(localStorage.getItem("selectedPlaces")) || [];
+  localStorage.setItem(
+    "selectedPlaces",
+    JSON.stringify(storeIds.filter((id) => id !== selectedPlace.current))
+  );
+}, []);
+```
+
+컴포넌트가 재실행되었을 때 함수가 재생성되지 않게 함.
+대신에 메모리 내부에 저장한다. 그래서 함수가 재실행 될때마다 메모리에 저장된 함수를 재사용한다.
