@@ -292,3 +292,52 @@ useEffect(() => {
 ```
 
 이후에 ESC를 눌러도 취소가 적용될 수 있게 해주어야 한다.
+
+## useEffect의 Cleanup함수
+
+모달창이 나오고 나서 아무 동작을 안하면 3초 후에 자동으로 confirm하여 삭제하게 하는 로직을 만들어보자.
+
+```jsx
+//DeleteConfirmation.jsx
+useEffect(() => {
+  const timer = setTimeout(() => {
+    onConfirm();
+  }, 3000);
+
+  return () => {
+    clearTimeout(timer);
+  };
+}, [onConfirm]);
+```
+
+Modal.jsx에 `children`요소를 open일 때만 나오게 삼항연산자 처리 한후에 위와 같이 하면 된다.
+onConfirm은 함수이기에 이전의 값과 비교하게 되면 다르다(false).
+
+```jsx
+function func1() {
+  console.log("A");
+}
+
+function func2() {
+  console.log("A");
+}
+
+console.log(func1 === func2); // false
+```
+
+이러한 것과 유사하다.
+그래서 useEffect 함수 내에 상태값을 변경하는 요소가 있다면 무한루프가 발생할 수 있다.
+현재 여기서 문제가 발생하지 않는 이유는
+
+```jsx
+// Modal.jsx
+return createPortal(
+  <dialog className="modal" ref={dialog} onClose={onClose}>
+    {open ? children : null}
+  </dialog>,
+  document.getElementById("modal")
+);
+```
+
+이 부분에서 `{open ? children : null}` 해당 요소가 작용하고 있기 때문이다.
+해당 요소가 적용되지 않았다면 무한루프에 돌게 된다.
