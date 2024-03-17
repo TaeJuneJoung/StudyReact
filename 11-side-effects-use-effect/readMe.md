@@ -1,5 +1,25 @@
 # useEffect
 
+해당 부분을 이해하기에 앞서 실행되는 순서를 먼저 파악해야 편할 것으로 보인다.
+
+1. jsx Start/End : 컴포넌트 함수 밖에서의 시작/끝
+2. COMPONENT Start/End : 컴포넌트 함수 시작/끝
+3. useEffect Start/End : useEffect함수 시작/끝
+
+```js
+Modal.jsx START
+Modal.jsx MODAL.jsx END
+App.jsx APP.jsx START
+App.jsx APP COMPONENT START
+App.jsx APP COMPONENT END
+Modal.jsx MODAL COMPONENT START
+Modal.jsx MODAL COMPONENT END
+Modal.jsx MODAL useEffect START
+Modal.jsx MODAL useEffect END
+App.jsx APP useEffect START
+App.jsx APP useEffect END
+```
+
 ## Side Effect
 
 앱이 제대로 동작하기 위해 실행되어야 하지만 현재의 컴포넌트 렌더링 과정에 직접적인 영향을 끼치지 않는 작업.
@@ -241,3 +261,34 @@ const [pickedPlaces, setPickedPlaces] = useState(storePlaces);
 `pickedPlaces` 초기값으로 localStorage에 있는 값을 주었다.
 
 더군다나 해당 부분의 로직이 컴포넌트 안에 있을 필요 없다. 함수 밖에서 앱이 실행될 때 한번만 되면 됨.
+
+## 브라우저 API를 싱크릴 위한 useEffect 활용
+
+[Section8:Portals Modal](https://github.com/TaeJuneJoung/StudyReact/tree/develop/08-refs-portals#portals%ED%8F%AC%ED%83%88-%EC%86%8C%EA%B0%9C-%EB%B0%8F-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0)
+
+이전에 Section8에서 모달을 위와 같이 다뤘었다.
+
+이번에는 그 이전 방식을 사용했을 때 modalIsOpen상태 초기값 false이기에 close하라는 에러가 생겨서 useEffect를 사용해야하는 경우에 대해서 알아보자.
+
+`Modal.jsx`는 컴포넌트 렌더링 작업과 직접적으로 연관되어 있지 않다.
+
+## Effect Dependencis
+
+Effect 의존성이란 속성이나 상태값으로 이해할 수 있다.
+
+other effect dependencies would be functions or context values that depend on or use state or props.
+
+컴포넌트가 실행될때마다 해당 함수가 진행되어야 하기 때문.
+open상태값에 따라 변경될 수도 있다.
+
+```jsx
+useEffect(() => {
+  if (open) {
+    dialog.current.showModal();
+  } else {
+    dialog.current.close();
+  }
+}, [open]);
+```
+
+이후에 ESC를 눌러도 취소가 적용될 수 있게 해주어야 한다.
