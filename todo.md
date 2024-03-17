@@ -31,3 +31,7 @@
 ## section 10: Context / reducer
 
 - 해당 프로젝트 이후에 다시 작성해보기
+
+## section11: useEffect, useCallback
+
+- section12 연습문제 풀면서 재확인 해볼 것
