@@ -2,7 +2,10 @@ function handleSubmit(event) {
   event.preventDefault();
 
   const fd = new FormData(event.target);
-  console.log(fd);
+  const acquisitionChannel = fd.getAll("acquisition");
+  const data = Object.fromEntries(fd.entries());
+  data.acquisitionChannel = acquisitionChannel;
+  console.log(data);
 }
 
 export default function Signup() {
