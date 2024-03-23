@@ -190,6 +190,9 @@ useRef를 초기화해주는 방식처럼 `ref변수.current.value = ''` 이러�
 // StateLogin.jsx
 import { useState } from "react";
 
+import Input from "./Input";
+import { isEmail, isNotEmpty, hasMinLength } from "../util/validation";
+
 export default function Login() {
   const [enteredValues, setEnteredValues] = useState({
     email: "",
@@ -201,10 +204,17 @@ export default function Login() {
     password: false,
   });
 
-  const emailIsInvalid = didEdit.email && !enteredValues.email.includes("@");
+  const emailIsInvalid =
+    didEdit.email &&
+    !isEmail(enteredValues.email) &&
+    !isNotEmpty(enteredValues.email);
+  const passwordlIsInvalid =
+    didEdit.password && !hasMinLength(enteredValues.password, 6);
 
   function handleSumbit(event) {
     event.preventDefault();
+
+    // 제출시 유효성 검증 추가해주는 것이 좋음
   }
 
   function handleInputChage(identifier, value) {
@@ -231,34 +241,27 @@ export default function Login() {
       <h2>Login</h2>
 
       <div className="control-row">
-        <div className="control no-margin">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            type="email"
-            name="email"
-            onBlur={() => handleInputBlur("email")}
-            value={enteredValues.email}
-            onChange={(event) => handleInputChage("email", event.target.value)}
-          />
-          <div className="control-error">
-            {emailIsInvalid && <p>Please enter a valid email address.</p>}
-          </div>
-        </div>
+        <Input
+          label="Email"
+          id="email"
+          type="email"
+          name="email"
+          error={emailIsInvalid && "Please enter a valid email!"}
+          onBlur={() => handleInputBlur("email")}
+          value={enteredValues.email}
+          onChange={(event) => handleInputChage("email", event.target.value)}
+        />
 
-        <div className="control no-margin">
-          <label htmlFor="password">Password</label>
-          <input
-            id="password"
-            type="password"
-            name="password"
-            onBlur={() => handleInputBlur("password")}
-            value={enteredValues.password}
-            onChange={(event) =>
-              handleInputChage("password", event.target.value)
-            }
-          />
-        </div>
+        <Input
+          label="Password"
+          id="password"
+          type="password"
+          name="password"
+          error={passwordlIsInvalid && "Please enter a valid password!"}
+          onBlur={() => handleInputBlur("password")}
+          value={enteredValues.password}
+          onChange={(event) => handleInputChage("password", event.target.value)}
+        />
       </div>
 
       <p className="form-actions">
@@ -278,3 +281,111 @@ useRef사용시에는 키 입력에 따른 유효성 검사가 사실상 어렵�
 그렇기에 제출시에 유효성 검사를 진행한다.
 
 https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation
+
+## 커스텀 훅 생성
+
+```js
+// useInput.js
+import { useState } from "react";
+
+export function useInput(defaultValue, validationFunc) {
+  const [enteredValue, setEnteredValue] = useState(defaultValue);
+  const [didEdit, setDidEdit] = useState(false);
+
+  const valueIsValid = validationFunc(enteredValue);
+
+  function handleInputChage(event) {
+    setEnteredValue(event.target.value);
+    setDidEdit(false);
+  }
+
+  function handleInputBlur() {
+    setDidEdit(true);
+  }
+
+  return {
+    value: enteredValue,
+    handleInputChage,
+    handleInputBlur,
+    hasError: didEdit && !valueIsValid,
+  };
+}
+```
+
+커스텀 훅(useInput)을 만든 후에 StateLogin에 적용
+
+```jsx
+// StateLogin.jsx
+import Input from "./Input";
+import { isEmail, isNotEmpty, hasMinLength } from "../util/validation";
+import { useInput } from "../hooks/useInput";
+
+export default function Login() {
+  const {
+    value: emailValue,
+    handleInputChage: handleEmailChange,
+    handleInputBlur: handleEmailBlur,
+    hasError: emailHasError,
+  } = useInput("", (value) => isEmail(value) && isNotEmpty(value));
+
+  const {
+    value: passwordValue,
+    handleInputChage: handlePasswordChange,
+    handleInputBlur: handlePasswordBlur,
+    hasError: passwordHasError,
+  } = useInput("", (value) => hasMinLength(value, 6));
+
+  function handleSumbit(event) {
+    event.preventDefault();
+
+    if (emailHasError || passwordHasError) {
+      return;
+    }
+
+    console.log(emailValue, passwordValue);
+  }
+
+  return (
+    <form onSubmit={handleSumbit}>
+      <h2>Login</h2>
+
+      <div className="control-row">
+        <Input
+          label="Email"
+          id="email"
+          type="email"
+          name="email"
+          error={emailHasError && "Please enter a valid email!"}
+          onBlur={handleEmailBlur}
+          value={emailValue}
+          onChange={handleEmailChange}
+        />
+
+        <Input
+          label="Password"
+          id="password"
+          type="password"
+          name="password"
+          error={passwordHasError && "Please enter a valid password!"}
+          onBlur={handlePasswordBlur}
+          value={passwordValue}
+          onChange={handlePasswordChange}
+        />
+      </div>
+
+      <p className="form-actions">
+        <button className="button button-flat">Reset</button>
+        <button className="button">Login</button>
+      </p>
+    </form>
+  );
+}
+```
+
+## 서드 파티 Form 라이브러리 사용하기
+
+- React Hook Form
+- Formik
+  사용자 입력을 얻고 검증하는데 도움을 주는 라이브러리
+
+해당 라이브러리들이 어떻게 작성되고 하는지 확인해보는 것도 학습에 도움이 됨.
