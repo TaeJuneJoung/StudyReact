@@ -35,3 +35,7 @@
 ## section11: useEffect, useCallback
 
 - section12 연습문제 풀면서 재확인 해볼 것
+
+## section13: class-based component
+
+- [this](https://academind.com/tutorials/this-keyword-function-references)
