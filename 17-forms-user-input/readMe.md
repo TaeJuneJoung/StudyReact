@@ -173,3 +173,108 @@ console.log(data);
 ```
 
 다음과 같이 그룹으로 되어 있어서 가져와야 하는 요소는 `getAll`함수를 사용하여 name값을 주어 가져와서 처리해주면 된다.
+
+## Form 초기화하기
+
+form 태그로 구성되어 있다면 reset버튼을 누른 효과처럼 초기화 해주는 것이 좋다.
+
+```js
+event.target.reset();
+```
+
+useRef를 초기화해주는 방식처럼 `ref변수.current.value = ''` 이러한 방도처럼 훅으로 DOM을 건드리는 것보다 낫다.
+
+## Blur 상태시 입력 유효성 검사
+
+```jsx
+// StateLogin.jsx
+import { useState } from "react";
+
+export default function Login() {
+  const [enteredValues, setEnteredValues] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [didEdit, setDidEdit] = useState({
+    email: false,
+    password: false,
+  });
+
+  const emailIsInvalid = didEdit.email && !enteredValues.email.includes("@");
+
+  function handleSumbit(event) {
+    event.preventDefault();
+  }
+
+  function handleInputChage(identifier, value) {
+    setEnteredValues((prevValues) => ({
+      ...prevValues,
+      [identifier]: value,
+    }));
+
+    setDidEdit((prevEdit) => ({
+      ...prevEdit,
+      [identifier]: false,
+    }));
+  }
+
+  function handleInputBlur(identifier) {
+    setDidEdit((prevEdit) => ({
+      ...prevEdit,
+      [identifier]: true,
+    }));
+  }
+
+  return (
+    <form onSubmit={handleSumbit}>
+      <h2>Login</h2>
+
+      <div className="control-row">
+        <div className="control no-margin">
+          <label htmlFor="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            onBlur={() => handleInputBlur("email")}
+            value={enteredValues.email}
+            onChange={(event) => handleInputChage("email", event.target.value)}
+          />
+          <div className="control-error">
+            {emailIsInvalid && <p>Please enter a valid email address.</p>}
+          </div>
+        </div>
+
+        <div className="control no-margin">
+          <label htmlFor="password">Password</label>
+          <input
+            id="password"
+            type="password"
+            name="password"
+            onBlur={() => handleInputBlur("password")}
+            value={enteredValues.password}
+            onChange={(event) =>
+              handleInputChage("password", event.target.value)
+            }
+          />
+        </div>
+      </div>
+
+      <p className="form-actions">
+        <button className="button button-flat">Reset</button>
+        <button className="button">Login</button>
+      </p>
+    </form>
+  );
+}
+```
+
+회원 가입 시에 비밀번호와 비밀번호 확인을 가지고 진행할 때는 blur(focus out) 이벤트를 사용하면 좋아 보인다.
+
+## Form 제출시 입력 유효성 검사
+
+useRef사용시에는 키 입력에 따른 유효성 검사가 사실상 어렵다.
+그렇기에 제출시에 유효성 검사를 진행한다.
+
+https://developer.mozilla.org/en-US/docs/Learn/Forms/Form_validation
