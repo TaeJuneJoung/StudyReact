@@ -60,3 +60,10 @@ useEffect를 통한 해결방안
 Thunk: 다른 작업이 완료될 때까지 작업을 지연시키는 단순한 함수
 
 action creators 함수를 통한 해결 방안
+
+## Redux DevTools
+
+크롬 확장 프로그램
+
+- React Developer Tools
+- Redux DevTools
