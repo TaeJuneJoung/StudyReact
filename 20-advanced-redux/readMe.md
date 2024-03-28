@@ -52,3 +52,11 @@ export default App;
 316강: 해당 부분 이해가 잘 되지 않음.
 
 다시 한번 파악해봐야할듯
+
+useEffect를 통한 해결방안
+
+## 액션 생성자 Thunk 사용하기
+
+Thunk: 다른 작업이 완료될 때까지 작업을 지연시키는 단순한 함수
+
+action creators 함수를 통한 해결 방안
