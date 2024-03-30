@@ -590,3 +590,22 @@ export async function action({ params, request }) {
 ```
 
 submit에서 method를 delete로 하였기에 request를 통해서 해당 값을 가져와 처리했다.
+
+## 사용자 입력을 검증하고 검증 오류 출력하기
+
+### useActionData
+
+useLoaderData와 유사한 기능을 한다.
+
+useActionData는 action이 리턴한 데이터에 액세스할 수 있게 해준다.
+
+가장 가까운 액션에 대한 액세스를 제공한다.
+
+```jsx
+// NewEventPage.jsx
+if (response.status === 422) {
+  return response;
+}
+```
+
+에러가 발생할 때 백엔드에서 보내는 에러값을 받아서 이를 UI적으로 표현하기 위해서 사용했음.
