@@ -1,8 +1,21 @@
-import classes from './EventItem.module.css';
+import { Link, useSubmit } from "react-router-dom";
+import classes from "./EventItem.module.css";
 
 function EventItem({ event }) {
+  const submit = useSubmit();
+
   function startDeleteHandler() {
-    // ...
+    const proceed = window.confirm("Are you sure?");
+
+    if (proceed) {
+      // submit(제출하려는 데이터, submit옵션)
+      /* submit옵션 예시
+       * {method: 'delete', action: 'id값'}
+       */
+      submit(null, {
+        method: "delete",
+      });
+    }
   }
 
   return (
@@ -12,7 +25,7 @@ function EventItem({ event }) {
       <time>{event.date}</time>
       <p>{event.description}</p>
       <menu className={classes.actions}>
-        <a href="edit">Edit</a>
+        <Link to="edit">Edit</Link>
         <button onClick={startDeleteHandler}>Delete</button>
       </menu>
     </article>
