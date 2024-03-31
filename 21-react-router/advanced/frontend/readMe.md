@@ -609,3 +609,97 @@ if (response.status === 422) {
 ```
 
 에러가 발생할 때 백엔드에서 보내는 에러값을 받아서 이를 UI적으로 표현하기 위해서 사용했음.
+
+## useFetcher
+
+action함수와 연결하기 위해서 form을 Form으로 바꿔서 사용할 줄 알았으나 useFetcher기능도 있었다.
+
+해당 함수는 라우트 변경을 트리거하지 않은 채로 배후에서 요청을 전송할 때 사용된다.
+
+즉, Form을 이용하게 되면 해당 라우트로 트리거 된다.
+
+![Form과 useFetcher 동작 차이](./_asset/Form_vs_useFetcher.png)
+
+**Form 사용시 코드**
+
+```jsx
+import { Form } from "react-router-dom";
+
+import classes from "./NewsletterSignup.module.css";
+
+function NewsletterSignup() {
+  return (
+    <Form method="post" action="/newsletter" className={classes.newsletter}>
+      <input
+        type="email"
+        placeholder="Sign up for newsletter..."
+        aria-label="Sign up for newsletter"
+      />
+      <button>Sign up</button>
+    </Form>
+  );
+}
+
+export default NewsletterSignup;
+```
+
+**useFetcher 사용시 코드**
+
+```jsx
+import { useFetcher } from "react-router-dom";
+
+import classes from "./NewsletterSignup.module.css";
+import { useEffect } from "react";
+
+function NewsletterSignup() {
+  const fetcher = useFetcher();
+  const { data, state } = fetcher;
+
+  useEffect(() => {
+    if (state === "idle" && data && data.message) {
+      window.alert(data.message);
+    }
+  }, [state, data]);
+
+  return (
+    <fetcher.Form
+      method="post"
+      action="/newsletter"
+      className={classes.newsletter}
+    >
+      <input
+        type="email"
+        placeholder="Sign up for newsletter..."
+        aria-label="Sign up for newsletter"
+      />
+      <button>Sign up</button>
+    </fetcher.Form>
+  );
+}
+
+export default NewsletterSignup;
+```
+
+버튼을 누르고 나면은 useEffect에서 설정한 alert창이 뜨게 된다.
+
+> **fetcher.state**
+>
+> - idle: nothing is being fetched.
+>
+>   아무것도 가져오지 않는다.
+>
+> - submitting: A route action is being called due to a fetcher submission using POST, PUT, PATCH, or DELETE
+>
+>   POST, PUT, PATCH 또는 DELETE를 사용한 가져오기 제출로 인해 경로 작업이 호출되고 있습니다.
+>
+> - loading: The fetcher is calling a loader (from a fetcher.load) or is being revalidated after a separate submission or useRevalidator call
+>
+>   가져오기 도구가 fetcher.load에서 로더를 호출 중이거나 별도의 제출 또는 useRevalidator 호출 후 유효성을 다시 검사하는 중입니다.
+
+## 리액트 라우터 버전5에서 업그레이드
+
+- v5 -> v6
+  https://www.youtube.com/watch?v=zEQiNFAwDGo
+
+- v6 -> v6.4
+  https://www.youtube.com/watch?v=L2kzUg6IzxM
