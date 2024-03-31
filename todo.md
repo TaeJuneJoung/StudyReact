@@ -39,3 +39,21 @@
 ## section13: class-based component
 
 - [this](https://academind.com/tutorials/this-keyword-function-references)
+
+## section20: 316강 내용부터 다시 파악 필요
+
+## section21
+
+**🤔TODO: Outlet이란 무엇인가?**
+**🤔TODO: end 왜 써?**
+**✅🤔TODO: 동적 라우트**
+
+1. 없는 id값을 작성했을 때 처리는 어떻게 할 것인가?
+2. 데이터들은 어떻게 가져올 것인가? id값을 기반으로 fetch를 해서 적용시키나? (가장 일반적 방법일듯한데..)
+
+> 해당 방안에 대해서 advanced에서 다루었다.
+>
+> 1. loader를 통해서 REST API를 통해서 데이터를 가져오고 id값의 경우에는 params를 이용하여 URL주소에 id값을 가져온다.
+> 2. id값으로 fetch해서 가져오는 것은 맞음 -> loader함수를 사용
+
+**🤔TODO: `Suspense`와 `Await`에 대해서 설명 할 수 있어야 좋을듯**
