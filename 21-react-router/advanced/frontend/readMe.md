@@ -696,6 +696,113 @@ export default NewsletterSignup;
 >
 >   가져오기 도구가 fetcher.load에서 로더를 호출 중이거나 별도의 제출 또는 useRevalidator 호출 후 유효성을 다시 검사하는 중입니다.
 
+## defer() 함수로 데이터 가져오기를 연기하는 방법
+
+데이터를 가져오는 페이지에서 시간이 걸려서 가져오는 부분을 제외하고는 먼저 보여줄 수 있는 부분은 보여줬으면 한다.
+
+```jsx
+import { Suspense } from "react";
+import {
+  Await,
+  defer,
+  json,
+  redirect,
+  useRouteLoaderData,
+} from "react-router-dom";
+
+import EventItem from "../components/EventItem";
+import EventsList from "../components/EventsList";
+
+function EventDetailPage() {
+  const { event, events } = useRouteLoaderData("event-detail");
+
+  return (
+    <>
+      <Suspense fallback={<p style={{ textAlign: "center" }}>Loading...</p>}>
+        <Await resolve={event}>
+          {(loadedEvent) => <EventItem event={loadedEvent} />}
+        </Await>
+      </Suspense>
+      <Suspense fallback={<p style={{ textAlign: "center" }}>Loading...</p>}>
+        <Await resolve={events}>
+          {(loadedEvents) => <EventsList events={loadedEvents} />}
+        </Await>
+      </Suspense>
+    </>
+  );
+}
+
+export default EventDetailPage;
+
+async function loadEvents() {
+  const response = await fetch("http://localhost:8080/events");
+
+  if (!response.ok) {
+    throw json(
+      { message: "Could not fetch events." },
+      {
+        status: 500,
+      }
+    );
+  } else {
+    const resData = await response.json();
+    return resData.events;
+  }
+}
+
+async function loadEvent(id) {
+  const response = await fetch(`http://localhost:8080/events/${id}`);
+
+  if (!response.ok) {
+    throw json(
+      { message: "Could not fetch details for selected event." },
+      { status: 500 }
+    );
+  }
+
+  const resData = await response.json();
+  return resData.event;
+}
+
+export async function loader({ params }) {
+  const id = params["some-id"];
+
+  return defer({
+    event: await loadEvent(id),
+    events: loadEvents(),
+  });
+}
+
+export async function action({ params, request }) {
+  const id = params["some-id"];
+  const response = await fetch(`http://localhost:8080/events/${id}`, {
+    method: request.method,
+  });
+
+  if (!response.ok) {
+    throw json(
+      {
+        message: "Could not delete event.",
+      },
+      { status: 500 }
+    );
+  }
+
+  return redirect("/events");
+}
+```
+
+🤔TODO: `Suspense`와 `Await`에 대해서 설명 할 수 있어야 좋을듯
+
+```js
+return defer({
+  event: await loadEvent(id),
+  events: loadEvents(),
+});
+```
+
+event 요소에서 `await`를 사용하고 아래에 events에는 사용하지 않은 이유는 개별 요소가 나오는 페이지 아래에 전체 요소도 보여주는 것인데 개별 요소가 보이기 전에 loading... 처리 되는 것보다는 개별 요소는 다 가져오고 페이지가 렌더링 되어서 전체 요소는 Loading...이다가 다 처리되면 변화해도 될 것이기 때문에 위와 같이 처리되었다.
+
 ## 리액트 라우터 버전5에서 업그레이드
 
 - v5 -> v6
