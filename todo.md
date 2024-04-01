@@ -24,6 +24,7 @@
 ## section 08: refs / portals
 
 **🤔TODO: forwardRef에 대해서 살펴보자.**
+
 **🤔TODO: userImperativeHandle에 대해서 살펴보자.**
 
 **🤔TODO: Modal 바깥 부분을 눌렀을 때는 어떻게 할 것인가?**
@@ -61,4 +62,11 @@
 ## section 22: Authentication
 
 **🤔TODO: 사용자 인증 만료 부분에 대해서 setTimeout을 쓴건 이해하겠으나 연장할 때의 방안 고려해야할 듯**
+
 **🤔TODO: JWT TOKEN 방식에 대해서 살펴볼 것**
+
+## section 23: Deploy
+
+**🤔TODO: 지연(lazy) 로딩을 왜 사용하는가?**
+
+**🤔TODO: AWS나 다른 클라우드 컴퓨팅을 이용한 배포 방안**
