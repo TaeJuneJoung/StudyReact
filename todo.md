@@ -32,17 +32,17 @@
 
 - 해당 프로젝트 이후에 다시 작성해보기
 
-## section11: useEffect, useCallback
+## section 11: useEffect, useCallback
 
 - section12 연습문제 풀면서 재확인 해볼 것
 
-## section13: class-based component
+## section 13: class-based component
 
 - [this](https://academind.com/tutorials/this-keyword-function-references)
 
-## section20: 316강 내용부터 다시 파악 필요
+## section 20: 316강 내용부터 다시 파악 필요
 
-## section21
+## section 21
 
 **🤔TODO: Outlet이란 무엇인가?**
 **🤔TODO: end 왜 써?**
@@ -57,3 +57,8 @@
 > 2. id값으로 fetch해서 가져오는 것은 맞음 -> loader함수를 사용
 
 **🤔TODO: `Suspense`와 `Await`에 대해서 설명 할 수 있어야 좋을듯**
+
+## section 22: Authentication
+
+**🤔TODO: 사용자 인증 만료 부분에 대해서 setTimeout을 쓴건 이해하겠으나 연장할 때의 방안 고려해야할 듯**
+**🤔TODO: JWT TOKEN 방식에 대해서 살펴볼 것**
