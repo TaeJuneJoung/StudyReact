@@ -14,6 +14,8 @@ https://tanstack.com/query/latest
 npm install @tanstack/react-query
 ```
 
+## Tanstack Query 적용
+
 Tanstack Query에는 HTTP 요청을 전송하는 로직이 내장되어 있지 않다. 대신에 요청을 관리하는 로직을 제공한다.
 
 `queryKey`를 이용하여 요청으로 생성된 데이터를 캐시 처리한다. 이후 동일한 요청을 전송하면 재사용할 수 있다.
@@ -164,3 +166,114 @@ export default function NewEventsSection() {
 이렇게만 하였는데도 다른 탭을 눌렀다가 돌아오면 refetch가 된다.
 
 데이터가 변화가 생기면 다른 작업 한 후에 탭에 돌아오면 그에 맞게 적용이 됨.
+
+```js
+const { data, isPending, isError, error, refetch } = useQuery({
+  queryKey: ["events"],
+  queryFn: fetchEvents,
+  staleTime: 0,
+  gcTime: 300000,
+});
+```
+
+이미지는 브라우저가 캐싱하고 다른 글 데이터들은 tanstack-query(react-query)가 캐싱한다.
+
+`staleTime`의 값이 0(기본값)이면 즉시 캐싱하는 방식이며, 5000이라고 하면 5000ms(=5초) 후에나 fetch가 이뤄진다.
+
+`gcTime`은 garbage collect Time으로 데이터와 캐시를 얼마나 오래 보관할지를 나타내며 기본값은 5분이다. 해당 값도 ms를 사용하고 있다. 30000이면 30초를 의미한다. 짧게 설정하면 해당 초 이후에 다시 데이터를 요청하는 것을 알 수 있다.
+
+🤔TODO: staleTime과 gcTime에 대해서 조금 더 자세히 알면 좋을듯 -> 전체적 useQuery에 대해서 살펴볼 것
+
+```jsx
+// FindEventSction.jsx
+import { useQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { fetchEvents } from "../../util/http";
+import LoadingIndicator from "../UI/LoadingIndicator";
+import ErrorBlock from "../UI/ErrorBlock";
+import EventItem from "./EventItem";
+
+export default function FindEventSection() {
+  const searchElement = useRef();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["events", { search: searchTerm }],
+    queryFn: () => fetchEvents(searchTerm),
+  });
+
+  function handleSubmit(event) {
+    event.preventDefault();
+    setSearchTerm(searchElement.current.value);
+  }
+
+  let content = <p>Please enter a search term and to find events.</p>;
+
+  if (isPending) {
+    content = <LoadingIndicator />;
+  }
+
+  if (isError) {
+    content = (
+      <ErrorBlock
+        title="An error occurred"
+        message={error.info?.message || "Failed to fetch events."}
+      />
+    );
+  }
+
+  if (data) {
+    content = (
+      <ul className="events-list">
+        {data.map((event) => (
+          <li key={event.id}>
+            <EventItem event={event} />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return (
+    <section className="content-section" id="all-events-section">
+      <header>
+        <h2>Find your next event!</h2>
+        <form onSubmit={handleSubmit} id="search-form">
+          <input
+            type="search"
+            placeholder="Search events"
+            ref={searchElement}
+          />
+          <button>Search</button>
+        </form>
+      </header>
+      {content}
+    </section>
+  );
+}
+```
+
+`searchElement.current.value`을 쓰면 되는 것을 왜 useState를 만들어서 사용했는가?
+
+-> 리액트의 상태와는 달리 ref는 컴포넌트 함수가 다시 실행되도록 할 수 없기 때문이다. 그렇기에 입력창에 입력된 값이 변경되어도 useQuery는 업데이트 되거나 다시 전송되지 않는다. 그래서 useState를 구성한 후에 버튼을 눌러 이벤트가 발생하면 상태 변화를 줌.
+
+```js
+const { data, isPending, isError, error } = useQuery({
+  queryKey: ["events", { search: searchTerm }],
+  queryFn: ({ signal }) => fetchEvents({ signal, searchTerm }),
+  enabled: searchTerm !== "",
+});
+```
+
+- enabled: true - 요청이 전송(default) / false - 쿼리가 비활성화되고 요청이 전송되지 않음
+- isLoading: 쿼리가 비활성화됐다고 해서 True가 되지는 않는다.
+
+## useMutation
+
+`useQuery`를 통해서 method: POST를 보낼 수도 있지만 데이터를 변경하는 쿼리로 useMutation이 최적화다.
+
+useQuery와 달리 요청이 즉시 전송되지 않도록 할 수 있다.
+
+key값은 반드시 필요하지 않다. 변형은 응답 데이터를 캐시 처리하지 않기 때문이다.
+
+- mutate: 요청을 언제 시작할 것인지 mutate함수로 지정
