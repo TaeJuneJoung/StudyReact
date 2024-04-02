@@ -277,3 +277,7 @@ useQuery와 달리 요청이 즉시 전송되지 않도록 할 수 있다.
 key값은 반드시 필요하지 않다. 변형은 응답 데이터를 캐시 처리하지 않기 때문이다.
 
 - mutate: 요청을 언제 시작할 것인지 mutate함수로 지정
+
+## 🐛ISSUE
+
+초기 화면은 나오는데 Network에서 events `strict-origin-when-cross-origin` 에러가 발생했다. 이유를 살펴보다가 `React.StrictMode`모드이기에 엄격하게 확인하면서 생기는 문제가 아닐까 했더니 해당 이슈였다.
