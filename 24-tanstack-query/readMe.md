@@ -482,3 +482,145 @@ const { data, isLoading, isError, error } = useQuery({
 ```
 
 🤔TODO: queryKey를 쓰는 것은 이해가 되는데 signal은 어디서 나온거지...?
+
+## 리액트 쿼리와 리액트 라우터
+
+`queryClient.fetchQuery()`는 useQuery와 동일한 구성 객체를 가지고 있다.
+
+```js
+// EditEvent.jsx
+export function loader({ params }) {
+  return queryClient.fetchQuery({
+    queryKey: ["events", params.id],
+    queryFn: ({ signal }) => fetchEvent({ signal, id: params.id }),
+  });
+}
+```
+
+해당 부분을 사용해서 useQuery를 삭제해야 한다고 생각했는데 그렇지 않고, 리액트 쿼리가 해당 요청을 보내고 캐싱되게 된다. 그러면 useQuery가 캐시된 데이터를 사용한다. `refetch`와 같은 기능 부분에서도 큰 도움이 되기에 useQuery를 그대로 사용한다.
+
+```jsx
+// EditEvent.jsx
+import {
+  Link,
+  redirect,
+  useNavigate,
+  useNavigation,
+  useParams,
+  useSubmit,
+} from "react-router-dom";
+import { useMutation, useQuery } from "@tanstack/react-query";
+
+import Modal from "../UI/Modal.jsx";
+import EventForm from "./EventForm.jsx";
+import LoadingIndicator from "../UI/LoadingIndicator.jsx";
+import { fetchEvent, queryClient, updateEvent } from "../../util/http.js";
+import ErrorBlock from "../UI/ErrorBlock.jsx";
+
+export default function EditEvent() {
+  const navigate = useNavigate();
+  const submit = useSubmit();
+  const { state } = useNavigation();
+  const params = useParams();
+
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["events", params.id],
+    queryFn: ({ signal }) => fetchEvent({ signal, id: params.id }),
+    staleTime: 10000, //초기에 가져올 때 중복으로 가져오는 것을 방지하고자 추가
+  });
+
+  // const { mutate } = useMutation({
+  //   mutationFn: updateEvent,
+  //   onMutate: async (data) => {
+  //     const newEvent = data.event;
+
+  //     await queryClient.cancelQueries({ queryKey: ["events", params.id] });
+  //     const previousEvent = queryClient.getQueryData(["events", params.id]);
+
+  //     queryClient.setQueryData(["events", params.id], newEvent);
+
+  //     return { previousEvent };
+  //   },
+  //   onError: (error, data, context) => {
+  //     queryClient.setQueryData(["events", params.id], context.previousEvent);
+  //   },
+  //   onSettled: () => {
+  //     queryClient.invalidateQueries(["events", params.id]);
+  //   },
+  // });
+
+  function handleSubmit(formData) {
+    submit(formData, { method: "PUT" });
+    // mutate({ id: params.id, event: formData });
+    // navigate("../");
+  }
+
+  function handleClose() {
+    navigate("../");
+  }
+
+  let content;
+
+  if (isPending) {
+    content = (
+      <div className="center">
+        <LoadingIndicator />
+      </div>
+    );
+  }
+
+  if (isError) {
+    content = (
+      <>
+        <ErrorBlock
+          title="Failed to load event"
+          message={
+            error.info?.message ||
+            "Failed to load event. Please check your inputs and try again later."
+          }
+        />
+        <div className="form-actions">
+          <Link to="../" className="button" />
+        </div>
+      </>
+    );
+  }
+
+  if (data) {
+    content = (
+      <EventForm inputData={data} onSubmit={handleSubmit}>
+        {state === "submitting" ? (
+          <p>Sending data...</p>
+        ) : (
+          <>
+            <Link to="../" className="button-text">
+              Cancel
+            </Link>
+            <button type="submit" className="button">
+              Update
+            </button>
+          </>
+        )}
+      </EventForm>
+    );
+  }
+
+  return <Modal onClose={handleClose}>{content}</Modal>;
+}
+export function loader({ params }) {
+  return queryClient.fetchQuery({
+    queryKey: ["events", params.id],
+    queryFn: ({ signal }) => fetchEvent({ signal, id: params.id }),
+  });
+}
+
+export async function action({ request, params }) {
+  const formData = await request.formData();
+  const updatedEventData = Object.fromEntries(formData);
+  await updateEvent({ id: params.id, event: updatedEventData });
+  await queryClient.invalidateQueries(["events"]);
+  return redirect("../");
+}
+```
+
+🤔TODO: loader를 쓰는 이유는 그나마 이해가 되는데 action을 쓰는건 무슨 이점이 있는지 잘 모르겠음.
