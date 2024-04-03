@@ -470,3 +470,15 @@ function handleSubmit(formData) {
   navigate("../");
 }
 ```
+
+## 쿼리 키를 쿼리 함수 입력으로 사용
+
+```js
+const { data, isLoading, isError, error } = useQuery({
+  queryKey: ["events", { searchTerm: searchTerm }],
+  queryFn: ({ signal, queryKey }) => fetchEvents({ signal, ...queryKey[1] }),
+  enabled: searchTerm !== undefined,
+});
+```
+
+🤔TODO: queryKey를 쓰는 것은 이해가 되는데 signal은 어디서 나온거지...?
