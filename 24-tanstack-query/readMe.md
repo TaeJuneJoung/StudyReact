@@ -277,7 +277,160 @@ useQuery와 달리 요청이 즉시 전송되지 않도록 할 수 있다.
 key값은 반드시 필요하지 않다. 변형은 응답 데이터를 캐시 처리하지 않기 때문이다.
 
 - mutate: 요청을 언제 시작할 것인지 mutate함수로 지정
+- onSuccess: 변형이 성공한 경우에만 실행
 
-## 🐛ISSUE
+> **🐛ISSUE**
+>
+> 초기 화면은 나오는데 Network에서 events `strict-origin-when-cross-origin` 에러가 발생했다. 이유를 살펴보다가 `React.StrictMode`모드이기에 엄격하게 확인하면서 생기는 문제가 아닐까 했더니 해당 이슈였다.
 
-초기 화면은 나오는데 Network에서 events `strict-origin-when-cross-origin` 에러가 발생했다. 이유를 살펴보다가 `React.StrictMode`모드이기에 엄격하게 확인하면서 생기는 문제가 아닐까 했더니 해당 이슈였다.
+## 동작 성공 시 동작 및 쿼리 무효화
+
+```js
+const { mutate, isPending, isError, error } = useMutation({
+  mutationFn: createNewEvent,
+  onSuccess: () => {
+    navigate("/events");
+  },
+});
+```
+
+이렇게만 하고 생성을 하게 되면 생성된 게시물이 바로 적용이 안되어 안보인다. 그래서 적용될 수 있게 다른 쿼리 무효화를 해줘야 한다.
+
+QueryClient를 통해서 쿼리 무효화를 해줄 수 있다.
+
+App.jsx에 있던 QueryClient를 http.js에 선언해주었고 App.jsx는 export된 값을 우선 받았다.
+
+또한, NewEvent.jsx에서도 가져와서 아래와 같이 해주었다.
+
+```jsx
+// NewEvent.jsx
+const { mutate, isPending, isError, error } = useMutation({
+  mutationFn: createNewEvent,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ["events"], exact: true });
+    navigate("/events");
+  },
+});
+```
+
+queryKey가 일치하는 것들을 다 무효화해서 데이터를 다시 가져오게 처리하였다. `exact`를 true로 하면 queryKey가 일치하는 거에 대해서만 적용된다. queryKey를 `events`로 사용하고 있으나 `queryKey: ["events", { search: searchTerm }],` 이런식으로 되어 있는 key값은 적용이 안된다는 뜻이다. 그러나 여기서는 events 관련된 모든 쿼리를 무효화하는게 적절하여 exact를 사용하지 않았다.
+
+## 무효화 후 자동 다시 가져오기 비활성화
+
+```jsx
+// EventDetails.jsx
+import { Link, Outlet, useNavigate, useParams } from "react-router-dom";
+
+import Header from "../Header.jsx";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { deleteEvent, fetchEvent } from "../../util/http.js";
+import ErrorBlock from "../UI/ErrorBlock.jsx";
+import { queryClient } from "../../util/http.js";
+
+export default function EventDetails() {
+  const params = useParams();
+  const navigate = useNavigate();
+
+  const { data, isPending, isError, error } = useQuery({
+    queryKey: ["events", params.id],
+    queryFn: ({ signal }) => fetchEvent({ signal, id: params.id }),
+    staleTime: 5000,
+  });
+
+  const { mutate: deleteMutate } = useMutation({
+    mutationFn: deleteEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      navigate("/events");
+    },
+  });
+
+  function eventDeleteHandler() {
+    deleteMutate({ id: params.id });
+  }
+
+  let content;
+
+  if (isPending) {
+    content = (
+      <div id="event-details-content" className="center">
+        <p>Fetching event data...</p>
+      </div>
+    );
+  }
+
+  if (isError) {
+    content = (
+      <div id="event-details-content" className="center">
+        <ErrorBlock
+          title="Failed to load event"
+          message={
+            error.info?.message ||
+            "Failed to fetch event data, please try again later."
+          }
+        />
+      </div>
+    );
+  }
+
+  if (data) {
+    const formattedDate = new Date(data.date).toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    content = (
+      <>
+        <header>
+          <h1>{data.title}</h1>
+          <nav>
+            <button onClick={eventDeleteHandler}>Delete</button>
+            <Link to="edit">Edit</Link>
+          </nav>
+        </header>
+        <div id="event-details-content">
+          <img src={"http://localhost:3000/" + data.image} alt={data.title} />
+          <div id="event-details-info">
+            <div>
+              <p id="event-details-location">{data.location}</p>
+              <time dateTime={`Todo-DateT$Todo-Time`}>
+                {formattedDate} @ {data.time}
+              </time>
+            </div>
+            <p id="event-details-description">{data.description}</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Outlet />
+      <Header>
+        <Link to="/events" className="nav-item">
+          View all Events
+        </Link>
+      </Header>
+      <article id="event-details">{content}</article>
+    </>
+  );
+}
+```
+
+이렇게만 작성하게 되면 삭제 후에 `/events`화면으로 오게 되었을 때 삭제한 event도 다시 불러오려고 하면서 네트워크에는 에러가 하나 발생하게 된다.
+
+```js
+const { mutate: deleteMutate } = useMutation({
+  mutationFn: deleteEvent,
+  onSuccess: () => {
+    queryClient.invalidateQueries({
+      queryKey: ["events"],
+      refetchType: "none",
+    });
+    navigate("/events");
+  },
+});
+```
+
+`refetchType: 'none'`으로 하게 되면 해당 부분에 대해서는 가져오지 않게 된다.

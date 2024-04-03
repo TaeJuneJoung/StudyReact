@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from "react-router-dom";
 
-import Modal from '../UI/Modal.jsx';
-import EventForm from './EventForm.jsx';
+import Modal from "../UI/Modal.jsx";
+import EventForm from "./EventForm.jsx";
+import { useQuery } from "@tanstack/react-query";
 
 export default function EditEvent() {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ export default function EditEvent() {
   function handleSubmit(formData) {}
 
   function handleClose() {
-    navigate('../');
+    navigate("../");
   }
 
   return (
