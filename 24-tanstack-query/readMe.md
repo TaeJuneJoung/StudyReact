@@ -434,3 +434,39 @@ const { mutate: deleteMutate } = useMutation({
 ```
 
 `refetchType: 'none'`으로 하게 되면 해당 부분에 대해서는 가져오지 않게 된다.
+
+## 낙관적 업데이트
+
+`queryClient.invalidateQueries`방식을 사용하면 수정도 동일하게 적용은 되지만 백엔드의 응답을 기다리지 않고 즉시 변경하려고 한다. 이후 백엔드 적용 실패시 롤백하는 방안으로 진행.
+
+- onMutate: mutate를 호출하는 즉시 실행된다.
+
+`queryClient.setQueryData(편집하려는 query의 키, 새 데이터)`
+
+```js
+const { mutate } = useMutation({
+  mutationFn: updateEvent,
+  onMutate: async (data) => {
+    const newEvent = data.event;
+
+    await queryClient.cancelQueries({ queryKey: ["events", params.id] });
+    const previousEvent = queryClient.getQueryData(["events", params.id]);
+
+    queryClient.setQueryData(["events", params.id], newEvent);
+
+    return { previousEvent };
+  },
+  onError: (error, data, context) => {
+    queryClient.setQueryData(["events", params.id], context.previousEvent);
+  },
+  onSettled: () => {
+    // 성공여부 상관없이 mutation이 완료될 때마다 호출됨
+    queryClient.invalidateQueries(["events", params.id]);
+  },
+});
+
+function handleSubmit(formData) {
+  mutate({ id: params.id, event: formData });
+  navigate("../");
+}
+```
