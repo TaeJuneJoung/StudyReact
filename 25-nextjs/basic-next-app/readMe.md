@@ -114,3 +114,23 @@ export default function Home() {
 > - route.js: API경로 생성(즉, JSX코드가 아닌 데이터를 반환하는 페이지. ex) JSON형식)
 >
 > 참고 링크: https://nextjs.org/docs/app/api-reference/file-conventions
+
+## 동적 경로 환경설정 및 경로 매개 변수 사용 방법
+
+게시물 세부 정보를 본다고 하였을 때 해당 상세 게시물마다 page.js를 만드는 것은 말이 안되니 당연히 동적 처리 방안으로 진행해야 한다.
+
+`[식별명]`을 사용한다.
+
+```js
+// /blog/[slug]/page.js
+export default function BlogPostPage(props) {
+  return (
+    <main>
+      <h1>Blog Post</h1>
+      {props.params.slug}
+    </main>
+  );
+}
+```
+
+params에서 식별명을 작성하면 된다.
