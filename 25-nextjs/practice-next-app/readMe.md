@@ -463,3 +463,319 @@ db 불러오는 부분에서 setTimeout으로 2초를 잡아두고 있기 때문
 loading.js를 이용하면 해당 라우트 로딩 상태일 때 해당 부분이 대체하게 된다.
 
 그런데 원하는건 부분적으로 적용하고 싶다. (물론 지금도 main-header부분은 따로 작동하긴 하지만... 내부 요소에서 부분적 적용)
+
+loading을 사용하지 않고 Suspense를 이용하면 된다.
+
+```js
+import Link from "next/link";
+import { Suspense } from "react";
+
+import classes from "./page.module.css";
+import MealsGrid from "@/components/meals/meals-grid";
+import { getMeals } from "@/lib/meals";
+
+async function Meals() {
+  const meals = await getMeals();
+
+  return <MealsGrid meals={meals} />;
+}
+
+export default async function MealsPage() {
+  return (
+    <>
+      <header className={classes.header}>
+        <h1>
+          Delicious meals, created{" "}
+          <span className={classes.highlight}>by you</span>
+        </h1>
+        <p>
+          Choose your favorite recipe and cook it yourself. It is easy and fun!
+        </p>
+        <p className={classes.cta}>
+          <Link href="/meals/share">Share Your Favorite Recipe</Link>
+        </p>
+      </header>
+      <main className={classes.main}>
+        <Suspense
+          fallback={<p className={classes.loading}>Fetching meals...</p>}
+        >
+          <Meals />
+        </Suspense>
+      </main>
+    </>
+  );
+}
+```
+
+## 오류 처리 방법
+
+오류는 Client 컴포넌트로 봐야 한다.
+
+```js
+// error.js
+"use client";
+
+export default function Error() {
+  return (
+    <main className="error">
+      <h1>An error occurred!</h1>
+      <p>Failed to fetch meal data. Please try again layer.</p>
+    </main>
+  );
+}
+```
+
+## Not Found Page 처리
+
+- not-found.js를 통해서 처리
+
+## 동적 경로와 경로 매개변수를 활용한 Meals 세부내용 로딩 및 렌더링
+
+HTML코드로 출력되어야 하는 부분에 대해서 그냥 사용하면 XSS(크로스 사이트 스크립트) 공격 위험이 있다.
+
+그래서 다음과 같이 `dangerouslySetInnerHTML`로 처리한다.
+
+```js
+<p
+  className={classes.instructions}
+  dangerouslySetInnerHTML={{
+    __html: meal.instructions,
+  }}
+></p>
+```
+
+## 양식 제출 처리를 위한 서버 액션 소개 및 사용 방법
+
+`use server`
+
+함수 안에다가 사용하게 되면 Server Action이라는 것을 생성하게 된다. 오직 서버에서만 실행되게 보장해주는 기능이다.
+
+함수 앞에 `async`를 붙여 주어야 한다.
+
+Server Action은 리액트에서도 존재하지만 서버 컴포넌트와 같이 바닐라 리액트 앱에서는 제대로 작동하지 않는다.
+
+form에 action의 속성에 값으로 할당할 수 있다.
+
+또한, `use client`를 사용하면서 `use server`를 사용할순 없다. 2개를 동시에 써야하는 상황에서는 컴포넌트화 하여 진행하면 된다.
+
+```js
+// lib/actions.js
+"use server";
+
+export async function shareMeal(formData) {
+  "use server";
+
+  const meal = {
+    title: formData.get("title"),
+    summary: formData.get("summary"),
+    instructions: formData.get("instructions"),
+    image: formData.get("image"),
+    creator: formData.get("name"),
+    creator_email: formData.get("email"),
+  };
+
+  console.log(meal);
+}
+```
+
+여기서는 해당 부분만 따로 빼서 함수를 import 하였다.
+
+## XSS 보호를 위한 슬러그 생성 및 유저 입력 무결 처리하기
+
+```bash
+npm install slugify xss
+```
+
+- xss: xss(크로스 사이드 스크립트)를 방어하기 위한 라이브러리
+- slugify: 텍스트를 slug로 변환해주는 라이브러리
+
+```js
+// meals/share/page.js
+"use client";
+
+import ImagePicker from "@/components/meals/image-picker";
+
+import { shareMeal } from "@/lib/actions";
+import classes from "./page.module.css";
+import MealsFormSubmit from "@/components/meals/meals-form-submit";
+
+export default function ShareMealPage() {
+  const [state, formAction] = useFormState(shareMeal, { message: null });
+
+  return (
+    <>
+      <header className={classes.header}>
+        <h1>
+          Share your <span className={classes.highlight}>favorite meal</span>
+        </h1>
+        <p>Or any other meal you feel needs sharing!</p>
+      </header>
+      <main className={classes.main}>
+        <form className={classes.form} action={formAction}>
+          <div className={classes.row}>
+            <p>
+              <label htmlFor="name">Your name</label>
+              <input type="text" id="name" name="name" required />
+            </p>
+            <p>
+              <label htmlFor="email">Your email</label>
+              <input type="email" id="email" name="email" required />
+            </p>
+          </div>
+          <p>
+            <label htmlFor="title">Title</label>
+            <input type="text" id="title" name="title" required />
+          </p>
+          <p>
+            <label htmlFor="summary">Short Summary</label>
+            <input type="text" id="summary" name="summary" required />
+          </p>
+          <p>
+            <label htmlFor="instructions">Instructions</label>
+            <textarea
+              id="instructions"
+              name="instructions"
+              rows="10"
+              required
+            ></textarea>
+          </p>
+          <ImagePicker label="Your image" name="image" />
+          {state.message && <p>{state.message}</p>}
+          <p className={classes.actions}>
+            <MealsFormSubmit />
+          </p>
+        </form>
+      </main>
+    </>
+  );
+}
+```
+
+```js
+// lib/meals.js
+import fs from "node:fs";
+
+import sql from "better-sqlite3";
+import slugify from "slugify";
+import xss from "xss";
+
+const db = sql("meals.db");
+
+export async function getMeals() {
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // 학습을 위한 지연
+
+  // throw new Error("Loading meals failed"); // 학습을 위한 에러
+  return db.prepare("SELECT * FROM meals").all();
+}
+
+export function getMeal(slug) {
+  return db.prepare("SELECT * FROM meals WHERE slug = ?").get(slug);
+}
+
+export async function saveMeal(meal) {
+  meal.slug = slugify(meal.title, { lower: true });
+  meal.instructions = xss(meal.instructions);
+
+  const extension = meal.image.name.split(".").pop();
+  const fileName = `${meal.slug}.${extension}`;
+
+  const stream = fs.createWriteStream(`public/images/${fileName}`);
+  const bufferedImage = await meal.image.arrayBuffer();
+
+  stream.write(Buffer.from(bufferedImage), (error) => {
+    if (error) {
+      throw new Error("Saving image failed!");
+    }
+  });
+
+  meal.image = `/images/${fileName}`;
+
+  db.prepare(
+    `
+    INSERT INTO meals
+      (slug, title, image, summary, instructions, creator, creator_email)
+    VALUES(
+      @slug,
+      @title,
+      @image,
+      @summary,
+      @instructions,
+      @creator,
+      @creator_email
+    )
+  `
+  ).run(meal);
+}
+```
+
+`@`로 처리하는 방식이 sqlite3에서만 지원하는 방식인지 이후 확인은 필요할듯
+
+```js
+// lib/actions.js
+"use server";
+
+import { redirect } from "next/navigation";
+import { saveMeal } from "./meals";
+
+function isInvalidText(text) {
+  return !text || text.trim() === "";
+}
+
+// useFormState에서 사용하는 함수가 되면서
+// 1번째 인자: 이전 상태값이 되면서 안쓰더라도 formData를 쓰기 위해 파라미터로 작성해야함
+export async function shareMeal(prevState, formData) {
+  "use server";
+
+  const meal = {
+    title: formData.get("title"),
+    summary: formData.get("summary"),
+    instructions: formData.get("instructions"),
+    image: formData.get("image"),
+    creator: formData.get("name"),
+    creator_email: formData.get("email"),
+  };
+
+  if (
+    isInvalidText(meal.title) ||
+    isInvalidText(meal.summary) ||
+    isInvalidText(meal.instructions) ||
+    isInvalidText(meal.creator) ||
+    isInvalidText(meal.creator_email) ||
+    !meal.creator_email.includes("@") ||
+    !meal.image ||
+    meal.image.size === 0
+  ) {
+    return {
+      message: "Invalid input.",
+    };
+  }
+
+  await saveMeal(meal);
+  redirect("/meals");
+}
+```
+
+> **🤔TODO: 여기까지 궁금한 점**
+>
+> - {} 쓰는 것이 아니라 안 쓰는 경우는 왜?
+>
+> ```js
+> <p
+>   className={classes.instructions}
+>   dangerouslySetInnerHTML={{
+>     __html: meal.instructions,
+>   }}
+> ></p>
+> ```
+>
+> - useFormStatus는 무엇인가?
+>
+> ```js
+> import { useFormStatus } from "react-dom";
+> ```
+>
+> - useFormState는 무엇인가?
+>
+> ```js
+> import { useFormState } from "react-dom";
+> ```
