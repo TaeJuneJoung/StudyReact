@@ -779,3 +779,74 @@ export async function shareMeal(prevState, formData) {
 > ```js
 > import { useFormState } from "react-dom";
 > ```
+
+## NextJS 캐싱 구축 및 이해
+
+```bash
+npm run build
+npm start
+```
+
+배포 버전으로 시작했을 때 더 빠르긴하나 다른 부분들이 생겼다.
+
+- 게시글 생성시 적용이 안된다.
+- 새로고침 시 데이터가 바로 나온다 -> 2초 지연이 있는데?!
+
+NextJS의 공격적인 캐싱으로 인하여 발생한다. 게시글 생성된 부분은 다시 build를 하고 켜게 되면 보인다. 그러나 당연스럽게 이러한 동작을 원하는 것은 아니다.
+
+`revalidatePath(라우트, 페이지)`함수는 NextJS가 특정 path에 속하는 캐시의 유효성 재검사(revalidate)를 하게 한다.
+
+- 페이지: 'page'(default), layout
+
+```js
+// lib/actions.js
+export async function shareMeal(prevState, formData) {
+  "use server";
+
+  const meal = {
+    title: formData.get("title"),
+    summary: formData.get("summary"),
+    instructions: formData.get("instructions"),
+    image: formData.get("image"),
+    creator: formData.get("name"),
+    creator_email: formData.get("email"),
+  };
+
+  if (
+    isInvalidText(meal.title) ||
+    isInvalidText(meal.summary) ||
+    isInvalidText(meal.instructions) ||
+    isInvalidText(meal.creator) ||
+    isInvalidText(meal.creator_email) ||
+    !meal.creator_email.includes("@") ||
+    !meal.image ||
+    meal.image.size === 0
+  ) {
+    return {
+      message: "Invalid input.",
+    };
+  }
+
+  await saveMeal(meal);
+  revalidatePath("/meals");
+  redirect("/meals");
+}
+```
+
+여기 `revalidatePath`에서는 share페이지는 음식 데이터를 사용하지 않아서 두번째 인자를 사용할 필요 없다.
+
+만약 웹 사이트의 모든 페이지를 재검사하고 싶다면 `revalidatePath('/', 'layout')`으로 설정하면 된다.
+
+## 로컬 Filesystem에 파일 저장 금지!
+
+`revalidatePath`를 사용하면 적용은 잘 되지만 이미지가 뜨지 않는다.
+
+이미지가 public폴더에 들어가게 되면 배포 환경에서는 public폴더에 관여하지 않기 때문에 무시된다.
+
+**AWS S3와 같은 파일 저장 서비스를 이용**하라고 NextJS 공식 문서에서 권장하고 있다.
+
+https://aws.amazon.com/ko/s3/pricing/
+
+⚠️AWS 관련해서는 과금이 될수도 있기에 주의!
+
+🤔TODO: S3 연동 해볼 것
