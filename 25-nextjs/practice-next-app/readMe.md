@@ -874,3 +874,7 @@ export async function generateMetadata({ params }) {
   };
 }
 ```
+
+## App Router와 Page Router
+
+지금까지 진행한 방식이 Page Router
