@@ -850,3 +850,27 @@ https://aws.amazon.com/ko/s3/pricing/
 ⚠️AWS 관련해서는 과금이 될수도 있기에 주의!
 
 🤔TODO: S3 연동 해볼 것
+
+## 정적 메타데이터 & 동적 메타데이터 추가
+
+https://nextjs.org/docs/app/building-your-application/optimizing/metadata#static-metadata
+
+정적 메타데이터는 `metadata`를 이용하면 되지만, 동적 메타데이터는 `generateMetadata`라는 async함수를 이용한다.
+
+Nextjs가 해당 함수 값을 찾아서 진행하기에 이름은 `generateMetadata`로 동일하게 해주어야 한다.
+
+```js
+// meals/[slug]/page.js
+export async function generateMetadata({ params }) {
+  const meal = getMeal(params.slug);
+
+  if (!meal) {
+    notFound();
+  }
+
+  return {
+    title: meal.title,
+    description: meal.summary,
+  };
+}
+```
