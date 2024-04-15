@@ -1,38 +1,35 @@
 import MeetupDetail from "@/components/meetups/MeetupDetail";
 
+import { getDataIdRow, getSomeData } from "@/lib/mongo-db";
+
 function MeetupDetails(props) {
   return <MeetupDetail {...props.meetupData} />;
 }
 
 export async function getStaticPaths() {
+  const meetups = await getSomeData(({}, { _id: 1 }));
+
   return {
     fallback: false,
-    paths: [
-      {
-        params: {
-          meetupId: "m1",
-        },
-      },
-      {
-        params: {
-          meetupId: "m2",
-        },
-      },
-    ],
+    paths: meetups.map((meetup) => ({
+      params: { meetupId: meetup._id.toString() },
+    })),
   };
 }
 
 export async function getStaticProps(context) {
   const meetupId = context.params.meetupId;
+
+  const meetup = await getDataIdRow(meetupId);
+
   return {
     props: {
       meetupData: {
-        id: meetupId,
-        title: "눈물의 여왕",
-        image:
-          "https://i.namu.wiki/i/1FQZf-g3pMrCoNp9_MOnQmAqxoFCId259JV5hotzrkoLDYmhdmnlMytnKdstBtMsrEyjOCioYAbIwjfVlq51Iw.webp",
-        address: "Korea",
-        description: "눈물의 여왕 tvn 9:20 p.m. 시작",
+        id: meetup._id.toString(),
+        title: meetup.title,
+        address: meetup.address,
+        description: meetup.description,
+        image: meetup.image,
       },
     },
   };

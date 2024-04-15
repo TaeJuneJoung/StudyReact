@@ -162,3 +162,142 @@ export default MeetupDetails;
 이렇게만 작성되었을 때 `getStaticPaths is required for dynamic SSG pages and is missing for...` 이런식으로 에러가 발생한다.
 
 🤔TODO: `getStaticPaths`란?
+
+## MongoDB 작업하기
+
+https://www.mongodb.com/ko-kr
+
+```bash
+npm install mongodb
+```
+
+## API Router
+
+Nextjs에서는 pages폴더 안에 api폴더를 만들어서 해당 경로에 맞는 파일 이름을 만들어서 진행하면 api router를 연결할 수 있다. 해당 폴더 내에서는 리액트 컴포넌트를 정의하거나 랜더링 이러한 요소는 하지 않는다. 서버 사이드 코드를 포함하는 함수를 정의한다. api router는 서버에서만 돌아간다.
+
+사용하는 방법은 다음과 같다.
+
+```js
+// /api/new-meetup.js
+import { insertRowData } from "@/lib/mongo-db";
+
+async function handler(req, res) {
+  if (req.method === "POST") {
+    const data = req.body;
+
+    const result = insertRowData(data);
+    console.log(result);
+
+    res.status(201).json({ message: "Meetup inserted!" });
+  }
+}
+
+export default handler;
+```
+
+엄밀히 말하면 NextJs가 자동으로 연결해준다기 보다는 page에 넣었기에 `/api/new-meetup`으로 라우트가 되기에 이를 이용하여 fetch로 값을 가져오는 방식이다.
+
+```js
+// /new-meetup/index.js
+import NewMeetupForm from "@/components/meetups/NewMeetupForm";
+import { useRouter } from "next/router";
+
+function newMeetupPage() {
+  const router = useRouter();
+
+  async function addMeetupHandler(enteredMeetupData) {
+    const response = await fetch("/api/new-meetup", {
+      method: "POST",
+      body: JSON.stringify(enteredMeetupData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    router.push("/");
+  }
+
+  return <NewMeetupForm onAddMeetup={addMeetupHandler} />;
+}
+
+export default newMeetupPage;
+```
+
+MongoDB를 이용하는 파일은 따로 모듈화 하였다. 강의에서는 이렇게 하지 않았지만 깔끔하게 하기 위해서 처리하였다.
+
+```js
+// lib/mongo-db.js
+import { MongoClient, ObjectId } from "mongodb";
+
+import { MONGODB_PASSWORD, MONGODB_USER } from "@/_secret";
+
+const collectList = {
+  meetups: "meetups",
+};
+
+async function _connectDB() {
+  const client = await MongoClient.connect(
+    `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@nextjsstudy.wlk59ct.mongodb.net/meetups?retryWrites=true&w=majority&appName=NextJSStudy`
+  );
+
+  return client;
+}
+
+function _closeDB(client) {
+  client.close();
+}
+
+function _selectCollection(client, collect) {
+  const db = client.db();
+  const collection = db.collection(collect);
+  return collection;
+}
+
+/**
+ * InsertRowData
+ * @param {*} payload: formData
+ * @returns result
+ * : 작성한 데이터 MongoDB에 추가
+ */
+export async function insertRowData(payload) {
+  const client = await _connectDB();
+  const collection = _selectCollection(client, collectList.meetups);
+  const result = await collection.insertOne(payload);
+  _closeDB(client);
+
+  return result;
+}
+
+/**
+ * getSomeData
+ * @param {*} payload: option
+ * @returns dataArray
+ * : 옵션으로 설정한 데이터에 맞는 데이터 배열 반환
+ */
+export async function getSomeData(payload) {
+  const client = await _connectDB();
+  const collection = _selectCollection(client, collectList.meetups);
+  const dataArray = await collection.find(payload).toArray();
+  _closeDB(client);
+
+  return dataArray;
+}
+
+/**
+ * getDataIdRow
+ * @param {*} id
+ * @returns data
+ * : id값에 맞는 데이터 Row 반환
+ */
+export async function getDataIdRow(id) {
+  const client = await _connectDB();
+  const collection = _selectCollection(client, collectList.meetups);
+  const data = await collection.findOne({ _id: new ObjectId(id) });
+  _closeDB(client);
+
+  return data;
+}
+```

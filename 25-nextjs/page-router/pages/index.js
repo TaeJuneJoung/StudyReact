@@ -1,23 +1,7 @@
-import MeetupList from "@/components/meetups/MeetupList";
+import { MongoClient } from "mongodb";
 
-const DUMMY_LIST = [
-  {
-    id: "m1",
-    title: "눈물의 여왕",
-    image:
-      "https://i.namu.wiki/i/1FQZf-g3pMrCoNp9_MOnQmAqxoFCId259JV5hotzrkoLDYmhdmnlMytnKdstBtMsrEyjOCioYAbIwjfVlq51Iw.webp",
-    address: "Korea",
-    description: "눈물의 여왕 tvn 9:20 p.m. 시작",
-  },
-  {
-    id: "m2",
-    title: "눈물의 여왕",
-    image:
-      "https://i.namu.wiki/i/1FQZf-g3pMrCoNp9_MOnQmAqxoFCId259JV5hotzrkoLDYmhdmnlMytnKdstBtMsrEyjOCioYAbIwjfVlq51Iw.webp",
-    address: "Korea",
-    description: "눈물의 여왕 tvn 9:20 p.m. 시작",
-  },
-];
+import MeetupList from "@/components/meetups/MeetupList";
+import { MONGODB_PASSWORD, MONGODB_USER } from "@/_secret";
 
 function HomePage(props) {
   return <MeetupList meetups={props.meetups} />;
@@ -37,9 +21,25 @@ function HomePage(props) {
 
 export async function getStaticProps() {
   //fetch data from an API
+  const client = await MongoClient.connect(
+    `mongodb+srv://${MONGODB_USER}:${MONGODB_PASSWORD}@nextjsstudy.wlk59ct.mongodb.net/meetups?retryWrites=true&w=majority&appName=NextJSStudy`
+  );
+  const db = client.db();
+  const meetupsCollection = db.collection("meetups");
+
+  const meetups = await meetupsCollection.find().toArray();
+
+  client.close();
+
   return {
     props: {
-      meetups: DUMMY_LIST,
+      meetups: meetups.map((meetup) => ({
+        title: meetup.title,
+        address: meetup.address,
+        description: meetup.description,
+        image: meetup.image,
+        id: meetup._id.toString(),
+      })),
     },
     revalidate: 10,
   };
