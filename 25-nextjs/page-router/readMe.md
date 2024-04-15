@@ -301,3 +301,45 @@ export async function getDataIdRow(id) {
   return data;
 }
 ```
+
+## head 메타데이터 추가하기
+
+nextjs의 head를 이용하여 메타데이터를 추가할 수 있다. 정적인 부분은 string으로 작성하면 되기에 동적인 부분만 기재하였다.
+
+```js
+import Head from "next/head";
+import { useRouter } from "next/router";
+
+import NewMeetupForm from "@/components/meetups/NewMeetupForm";
+
+function newMeetupPage() {
+  const router = useRouter();
+
+  async function addMeetupHandler(enteredMeetupData) {
+    const response = await fetch("/api/new-meetup", {
+      method: "POST",
+      body: JSON.stringify(enteredMeetupData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    router.push("/");
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Create Meetup</title>
+        <meta name="description" content="Create meetup page" />
+      </Head>
+      <NewMeetupForm onAddMeetup={addMeetupHandler} />;
+    </>
+  );
+}
+
+export default newMeetupPage;
+```

@@ -1,9 +1,18 @@
 import MeetupDetail from "@/components/meetups/MeetupDetail";
 
 import { getDataIdRow, getSomeData } from "@/lib/mongo-db";
+import Head from "next/head";
 
 function MeetupDetails(props) {
-  return <MeetupDetail {...props.meetupData} />;
+  return (
+    <>
+      <Head>
+        <title>{props.meetupData.title}</title>
+        <meta name="description" content={props.meetupData.description} />
+      </Head>
+      <MeetupDetail {...props.meetupData} />;
+    </>
+  );
 }
 
 export async function getStaticPaths() {
