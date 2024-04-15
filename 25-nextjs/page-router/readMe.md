@@ -343,3 +343,34 @@ function newMeetupPage() {
 
 export default newMeetupPage;
 ```
+
+## Next.js 프로젝트 배포하기
+
+호스팅 제공자로 Vercel을 이용.
+
+Vercel은 NextJs를 개발한 팀과 동일한 팀이 만든 호스팅 서비스 업체이다.
+
+Github, GitLab, Bithucket 중에 하나와 연동하여 저장한 Repository를 통해 배포를 쉽게 할 수 있다.
+
+비공개된 repository도 액세서 권한을 허가해주면 되기에 문제는 없다.
+
+배포한 이후에는 DB나 연결되어 있는 부분에 대해서도 ip 허가가 되어 있는지 이러한 부분들을 확인해야 한다.
+
+```js
+// /[meetupId]/index.js
+export async function getStaticPaths() {
+  const meetups = await getSomeData(({}, { _id: 1 }));
+
+  return {
+    fallback: "blocking",
+    paths: meetups.map((meetup) => ({
+      params: { meetupId: meetup._id.toString() },
+    })),
+  };
+}
+```
+
+fallback이 false값을 가지기에 배포하고 나서 문제가 발생한다. 이를 해결해주기 위해 true나 blocking으로 변경하는 방안이 있다. 설정한 path값들이 완전하지 않을 수 있고 더 유효한 페이지가 있을 수 있다는 의미이다. 이렇게 변경하면 nextjs에서 페이지를 찾을 수 없을 때 404페이지로 응답하지 않는다.
+
+- true: 빈 페이지가 즉시 반환되며 동적으로 생성된 콘텐츠를 풀다운한다. 페이지에 데이터가 아직 없는 경우를 처리해주어야 한다.
+- 'blocking': 페이지가 미리 생성될 때까지 사용자는 아무것도 볼 수 없고 완성된 페이지가 제공된다.
