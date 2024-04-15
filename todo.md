@@ -70,3 +70,11 @@
 **🤔TODO: 지연(lazy) 로딩을 왜 사용하는가?**
 
 **🤔TODO: AWS나 다른 클라우드 컴퓨팅을 이용한 배포 방안**
+
+## section 24: Tanstack-Query
+
+**🤔TODO: staleTime과 gcTime에 대해서 조금 더 자세히 알면 좋을듯 -> 전체적 useQuery에 대해서 살펴볼 것**
+
+**🤔TODO: queryKey를 쓰는 것은 이해가 되는데 signal은 어디서 나온거지...?**
+
+**🤔TODO: loader를 쓰는 이유는 그나마 이해가 되는데 action을 쓰는건 무슨 이점이 있는지 잘 모르겠음.**
