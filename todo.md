@@ -78,3 +78,38 @@
 **🤔TODO: queryKey를 쓰는 것은 이해가 되는데 signal은 어디서 나온거지...?**
 
 **🤔TODO: loader를 쓰는 이유는 그나마 이해가 되는데 action을 쓰는건 무슨 이점이 있는지 잘 모르겠음.**
+
+## section 25: Next.js
+
+**🤔TODO: 왜 Next.js를 사용하는 것인가?**
+
+> **🤔TODO:**
+>
+> - {} 쓰는 것이 아니라 안 쓰는 경우는 왜?
+>
+> ```js
+> <p
+>   className={classes.instructions}
+>   dangerouslySetInnerHTML={{
+>     __html: meal.instructions,
+>   }}
+> ></p>
+> ```
+>
+> - useFormStatus는 무엇인가?
+>
+> ```js
+> import { useFormStatus } from "react-dom";
+> ```
+>
+> - useFormState는 무엇인가?
+>
+> ```js
+> import { useFormState } from "react-dom";
+> ```
+
+**🤔TODO: S3 연동 해볼 것**
+
+**🤔TODO: `getStaticProps` vs. `getServerSideProps`**
+
+**🤔TODO: `getStaticPaths`란?**
