@@ -5,4 +5,3 @@
 ```bash
 npm install framer-motion
 ```
-
