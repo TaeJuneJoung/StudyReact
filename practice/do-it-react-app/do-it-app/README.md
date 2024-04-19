@@ -1,6 +1,6 @@
 # 리액트로 웹앱 만들기 with 타입스크립트
 
-TODO: React18에서 새로 등장한 기능인 useDeferredValue는 무슨 역할을 하는가?
+🤔TODO: React18에서 새로 등장한 기능인 useDeferredValue는 무슨 역할을 하는가?
 
 ## 1. 리액트 개발 준비
 
@@ -77,7 +77,7 @@ npm i -D @types/chance @types/luxon
 - React.StrictMode : 코드가 잘못되었는지 판단하여 적절한 오류 메시지를 보여 주는 컴포넌트
 - reportWebVitals : 앱의 성능을 측정하는 기능으로 리액트 개발과는 직접 관련은 없다.
 
-## 가상DOM
+### 가상DOM
 
 - react-dom/client : CSR(Client-Side Rendering)방식 웹 앱
 - react-dom/server : SSR(Server-Side Rendering)방식 웹 앱
@@ -90,3 +90,74 @@ npm i -D @types/chance @types/luxon
 > ```
 >
 > 리액트 17버전 이전에는 JSX 구문이 있는 파일은 반드시 import를 해줘야 했지만, 이후부터는 생략해도 됨.
+
+### 클래스 컴포넌트
+
+```tsx
+import {Component} from 'react'
+
+export type ClassComponentProps = {
+  href: string
+  text: string
+}
+
+export default class ClassComponent extends Component<ClassComponentProps> {
+  render() {
+    const {href, text} = this.props
+    return (
+      <li>
+        <a href={href}>
+          <p>{text}</p>
+        </a>
+      </li>
+    )
+  }
+}
+```
+
+### 함수형 컴포넌트
+
+React 16이상부터는 React Hook덕분에 함수형 컴포넌트를 주로 사용.
+
+- function 키워드 방식
+- 화살표 방식
+
+> **TypeScript import type 구문**
+>
+> ```ts
+> import type {FC} from 'react'
+> import {Component} from 'react'
+> ```
+>
+> 타입스크립트에서 타입은 자바스크립트로 컴파일할 때만 필요한 정보로 컴파일 후 자바스크립트 코드에서는 타입 관련 내용이 완전히 제거된다. 반면에 클래스는 물리적으로 동작하는 메서드와 속성이 있으므로 자바스크립트 코드로 변환돼도 컴파일된 형태로 그대로 남는다.
+> 해당 책에서는 FC처럼 타입스크립트 컴파일 때만 필요한 타입을 import type 구문으로 구현했다.
+
+```tsx
+import type {FC} from 'react'
+
+export type ArrowComponentProps = {
+  href: string
+  text: string
+}
+
+const ArrowComponent: FC<ArrowComponentProps> = props => {
+  const {href, text} = props
+  return (
+    <li>
+      <a href={href}>
+        <p>{text}</p>
+      </a>
+    </li>
+  )
+}
+
+export default ArrowComponent
+```
+
+🤔TODO: type을 붙이면 무엇이 달라지는가?
+
+```tsx
+import type {FC} from 'react'
+```
+
+### key와 children 속성 이해하기

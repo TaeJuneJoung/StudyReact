@@ -1,14 +1,10 @@
-import * as D from './data'
+import ArrowComponent from './components/ArrowComponent'
 
 function App() {
   return (
-    <div>
-      <p>
-        {D.randomName()}, {D.randomJobTitle()}, {D.randomDayMonthYear()}
-      </p>
-      <img src={D.randomAvatar()} height="50" alt="Avatar" />
-      <img src={D.randomImage()} height="300" alt="Random Img" />
-    </div>
+    <ul>
+      <ArrowComponent href="https://google.com" text="구글" />
+    </ul>
   )
 }
 
