@@ -156,8 +156,59 @@ export default ArrowComponent
 
 🤔TODO: type을 붙이면 무엇이 달라지는가?
 
+🤔TODO: type과 interface 차이
+
 ```tsx
 import type {FC} from 'react'
 ```
 
 ### key와 children 속성 이해하기
+
+#### key 속성
+
+```ts
+type Key = string | number
+```
+
+: 컴포넌트가 여러 개일 때 이들을 구분하려고 리액트 프레임워크가 만든 속성
+
+#### children 속성
+
+```ts
+children?: ReactNode | undefined;
+```
+
+리액트 17버전까지는 children 속성을 FC타입에 포함했는데 18버전부터는 FC 타입에서 제거하고 PropsWithChildren이라는 제네릭 타입을 새롭게 제공하였다.
+
+```tsx
+import type {FC, PropsWithChildren} from 'react'
+
+export type pProps = {}
+const P: FC<PropsWithChildren<pProps>> = props => {
+  return <p {...props} />
+}
+
+export default P
+```
+
+함수 컴포넌트를 정의할 때 PropsWithChildren 타입을 사용하면 Props 타입에 반복해서 children속성을 추가할 필요가 없어지므로 코드를 더 깔끔하게 구성할 수 있다.
+
+```tsx
+import type {FC, ReactNode} from 'react'
+
+export type pProps = {
+  children?: ReactNode | undefined
+}
+
+const P: FC<pProps> = props => {
+  return <p {...props} />
+}
+
+export default P
+```
+
+### 이벤트 속성
+
+#### 이벤트 버블링
+
+Event Bubbling: 자식 요소에서 발생한 이벤트가 가까운 부모 요소에서 가장 먼 부모 요소까지 계속 전달되는 현상
