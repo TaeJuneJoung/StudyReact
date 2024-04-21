@@ -212,3 +212,31 @@ export default P
 #### 이벤트 버블링
 
 Event Bubbling: 자식 요소에서 발생한 이벤트가 가까운 부모 요소에서 가장 먼 부모 요소까지 계속 전달되는 현상
+
+🤔TODO: stopPropagation과 preventDefault 함수
+
+🤔TODO: 이벤트에 대한 타입들 까지도 다 알고 있어야하는건가?
+
+
+
+#### `<input>` defaultValue와 defaultChecked 속성
+
+defaultValue와 defaultChecked는 어떤 초깃값을 설정하고 싶을 때 사용
+
+
+
+#### 드래그 앤 드롭 이벤트
+
+|   종류    | 발생시기                                                     | 리액트 이벤트 속성 이름 |
+| :-------: | ------------------------------------------------------------ | :---------------------: |
+| dragenter | 드래그한 요소나 텍스트 블록을 적합한 드롭 대상 위에 올라갔을 때 발생 |       onDragEnter       |
+| dragstart | 사용자가 요소나 텍스트 블록을 드래그하기 시작했을 때 발생    |       onDragStart       |
+|   drag    | 요소나 텍스트 블록을 드래그할 때 발생                        |         onDrag          |
+| dragover  | 요소나 텍스트 블록을 적합한 드롭 대상 위로 지나갈 때(수백 밀리초마다) 발생 |       onDragOver        |
+| dragleave | 드래그하는 요소나 텍스트 블록이 적합한 드롭 대상에서 벗어났을 때 발생 |       onDragLeave       |
+|  dragend  | 드래그를 끝냈을 때 발생                                      |        onDragEnd        |
+|   drop    | 요소나 텍스트 블록을 적합한 드롭 대상에 드롭했을 때 발생     |         onDrop          |
+
+
+
+## 3. 컴포넌트 CSS 스타일링
