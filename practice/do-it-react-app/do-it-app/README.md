@@ -217,26 +217,76 @@ Event Bubbling: 자식 요소에서 발생한 이벤트가 가까운 부모 요�
 
 🤔TODO: 이벤트에 대한 타입들 까지도 다 알고 있어야하는건가?
 
-
-
 #### `<input>` defaultValue와 defaultChecked 속성
 
 defaultValue와 defaultChecked는 어떤 초깃값을 설정하고 싶을 때 사용
 
-
-
 #### 드래그 앤 드롭 이벤트
 
-|   종류    | 발생시기                                                     | 리액트 이벤트 속성 이름 |
-| :-------: | ------------------------------------------------------------ | :---------------------: |
-| dragenter | 드래그한 요소나 텍스트 블록을 적합한 드롭 대상 위에 올라갔을 때 발생 |       onDragEnter       |
-| dragstart | 사용자가 요소나 텍스트 블록을 드래그하기 시작했을 때 발생    |       onDragStart       |
-|   drag    | 요소나 텍스트 블록을 드래그할 때 발생                        |         onDrag          |
+|   종류    | 발생시기                                                                   | 리액트 이벤트 속성 이름 |
+| :-------: | -------------------------------------------------------------------------- | :---------------------: |
+| dragenter | 드래그한 요소나 텍스트 블록을 적합한 드롭 대상 위에 올라갔을 때 발생       |       onDragEnter       |
+| dragstart | 사용자가 요소나 텍스트 블록을 드래그하기 시작했을 때 발생                  |       onDragStart       |
+|   drag    | 요소나 텍스트 블록을 드래그할 때 발생                                      |         onDrag          |
 | dragover  | 요소나 텍스트 블록을 적합한 드롭 대상 위로 지나갈 때(수백 밀리초마다) 발생 |       onDragOver        |
-| dragleave | 드래그하는 요소나 텍스트 블록이 적합한 드롭 대상에서 벗어났을 때 발생 |       onDragLeave       |
-|  dragend  | 드래그를 끝냈을 때 발생                                      |        onDragEnd        |
-|   drop    | 요소나 텍스트 블록을 적합한 드롭 대상에 드롭했을 때 발생     |         onDrop          |
-
-
+| dragleave | 드래그하는 요소나 텍스트 블록이 적합한 드롭 대상에서 벗어났을 때 발생      |       onDragLeave       |
+|  dragend  | 드래그를 끝냈을 때 발생                                                    |        onDragEnd        |
+|   drop    | 요소나 텍스트 블록을 적합한 드롭 대상에 드롭했을 때 발생                   |         onDrop          |
 
 ## 3. 컴포넌트 CSS 스타일링
+
+- tag의 class속성 -> className
+
+- label for속성 -> htmlFor
+
+### 머리티얼 아이콘
+
+```bash
+npm install @fontsource/material-icons
+```
+
+```tsx
+import '@fontsource/material-icons'
+```
+
+```css
+body {
+  font-family: 'Material Icons', sans-serif;
+}
+```
+
+### Tailwind CSS
+
+CSS관점에서 브라우저 호환성 문제는 -webkit, -moz, -ms 등으로 벤더 접두사 문제. 브라우저마다 이름을 다르게 사용해야하는 문제였다. `autoprefixer`는 사용자 CSS가 벤더 접두사를 붙이지 않더라도 후처리 과정에서 자동으로 벤더 접두사가 붙은 CSS를 생성해 준다.
+
+```bash
+npm install -D postcss autoprefixer tailwindcss
+```
+
+```bash
+npx tailwindcss init -p
+```
+
+`postcss.config.js`와 `tailwind.config.js` 파일이 만들어진다.
+
+```js
+// postcss.config.js
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {}
+  }
+}
+```
+
+```js
+// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [],
+  theme: {
+    extend: {}
+  },
+  plugins: []
+}
+```
