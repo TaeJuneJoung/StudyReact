@@ -343,3 +343,109 @@ module.exports = {
 `<h1>`~`<h6>`, `<p>` 웹브라우저마다 각기 다른 font-size와 line-height 값을 기본으로 설정해두었기에 Tailwind CSS에서는 설정된 글자 크기를 모두 초기화한다.
 
 https://tailwindcss.com/docs/font-size
+
+## 4. 함수 컴포넌트와 리액트 훅
+
+### 시계 컴포넌트 만들기
+
+![clock_image](./_asset/clock.png)
+
+다음과 같이 시계 이미지를 만든다고 하였을 때 시간이 계속 가게 하려면 어떻게 해야할까?
+
+1. setInterval을 활용한다.
+2. 메모리 누수를 없애기 위해 이후 clearInterval 사용
+
+여기까지는 이해하기 쉬운데 어느 타이밍에 clearInterval을 사용할 것인가가 애매모호해진다.
+
+3. useEffect 훅 사용
+
+```ts
+useEffect(() => {
+  // 컴포넌트가 생성될 때 실행
+  return () => {} // 컴포넌트가 소멸할 때 한번 실행
+}, [])
+```
+
+이제 어디에 무엇을 사용해야하는지는 확연해졌다.
+
+그러면 데이터는 어떻게 적용할 것인가?
+
+4. useState를 사용
+
+useRef의 경우에는 데이터 연결은 되지만 화면단에 구현해야할 때는 useState를 활용하는 것이 좋다.
+
+```tsx
+import {useEffect, useState} from 'react'
+import Clock from './pages/Clock'
+
+function App() {
+  let [today, setToday] = useState(new Date())
+  useEffect(() => {
+    const duration: number = 1000
+    const id = setInterval(() => {
+      setToday(new Date())
+    }, duration)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <>
+      <Clock today={today} />
+    </>
+  )
+}
+
+export default App
+```
+
+### 커스텀 훅
+
+새로운 훅 함수를 만들 수 있는데 접두어에 use를 붙여서 만든다.
+
+```ts
+// hooks/useInterval.ts
+import {useEffect} from 'react'
+
+export const useInterval = (callback: () => void, duration: number = 1000) => {
+  useEffect(() => {
+    const id = setInterval(callback, duration)
+    return () => clearInterval(id)
+  }, [callback, duration])
+}
+```
+
+```ts
+// hooks/useClock.ts
+import {useState} from 'react'
+import {useInterval} from './useInterval'
+
+export const useClock = () => {
+  const [today, setToday] = useState(new Date())
+  useInterval(() => setToday(new Date()))
+  return today
+}
+```
+
+```tsx
+// App.tsx
+import {useClock} from './hooks/useClock'
+import Clock from './pages/Clock'
+
+function App() {
+  const today = useClock()
+
+  return (
+    <>
+      <Clock today={today} />
+    </>
+  )
+}
+
+export default App
+```
+
+### 리액트 훅 함수의 특징
+
+1. 같은 리액트 훅을 여러 번 호출할 수 있다.
+2. 함수 몸통이 아닌 몸통 안 복합 실행문의 {} 안에서 호출할 수 없다.
+3. 비동기 함수를 콜백 함수로 사용할 수 없다.

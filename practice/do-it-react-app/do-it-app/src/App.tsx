@@ -1,11 +1,12 @@
-import Tailwindcss from './pages/Tailwindcss'
-import TextsTest from './pages/TextsTest'
+import {useClock} from './hooks/useClock'
+import Clock from './pages/Clock'
 
 function App() {
+  const today = useClock()
+
   return (
     <>
-      <Tailwindcss />
-      <TextsTest />
+      <Clock today={today} />
     </>
   )
 }
