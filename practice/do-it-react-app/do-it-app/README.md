@@ -290,3 +290,56 @@ module.exports = {
   plugins: []
 }
 ```
+
+**daisyui 패키지 설치**
+
+```bash
+npm install -D daisyui
+```
+
+**@tailwindcss/line-clamp 플러그인 설치**
+tailwind css 3.3 이상부터는 기본으로 포함되어 있어 설치하지 않아도 된다.
+
+> 여기 내용에서는 3.3 이상인데도 추가해야하는데...?
+
+```bash
+npm install -D @tailwindcss/line-clamp
+```
+
+#### 테일윈드 구성 파일 수정하기
+
+테일윈드CSS 기능 가운데 사용하지 않는 기능은 npm run build 명령 때 제거해 CSS 크기를 최소화할 수 있다.
+
+```js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  theme: {
+    extend: {}
+  },
+  safelist: [{pattern: /^line-clamp-(\d+)$/}],
+  plugins: [require('@tailwindcss/line-clamp'), require('daisyui')]
+}
+```
+
+` safelist: [{pattern: /^line-clamp-(\d+)$/}]`에서 `\d+`는 line-clamp-으로 시작하는 클래스 이름을 동적으로 조합하더라도 정상으로 동작하도록 트리 쉐이킹 대상에서 제거하는 코드
+
+⚠️여기에 `ts, tsx`에서 white space 하나로 인하여 적용이 안되었었음..
+
+\*트리 쉐이킹: 번들링 과정에서 불필요한 코드(사용되지 않는 모듈)를 식별하고 제거하는 기법
+
+```css
+/* index.css에 추가되어야 할 내용 */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+#### 테일윈드CSS 색상 클래스
+
+- 무채색 이름 규칙: 접두사-색상명/불투명도
+- 유채색 이름 규칙: 접두사-색상\_이름-채도/불투명도
+
+`<h1>`~`<h6>`, `<p>` 웹브라우저마다 각기 다른 font-size와 line-height 값을 기본으로 설정해두었기에 Tailwind CSS에서는 설정된 글자 크기를 모두 초기화한다.
+
+https://tailwindcss.com/docs/font-size

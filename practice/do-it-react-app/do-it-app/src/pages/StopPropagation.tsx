@@ -1,5 +1,5 @@
 import {SyntheticEvent} from 'react'
-import {Icon} from '../components/IconComponent'
+import {Icon} from '../components'
 
 import classes from './StopPropagation.module.css'
 
