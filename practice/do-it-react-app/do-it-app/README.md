@@ -449,3 +449,166 @@ export default App
 1. 같은 리액트 훅을 여러 번 호출할 수 있다.
 2. 함수 몸통이 아닌 몸통 안 복합 실행문의 {} 안에서 호출할 수 없다.
 3. 비동기 함수를 콜백 함수로 사용할 수 없다.
+
+### 리액트 훅의 기본 원리
+
+#### 캐시 구현하기
+
+### 데이터를 캐시하는 useMemo 훅
+
+react 패키지는 데이터를 캐시하는 용도로 useMemo 훅을 제공한다.
+
+```ts
+// useMemo 훅 사용법
+const 캐시된_데이터 = useMemo(콜백함수, [의존성1, 의존성2, ...])
+콜백함수 = () => 원본_데이터
+```
+
+```tsx
+// pages/Memo.tsx
+import {useMemo} from 'react'
+
+import * as D from '../data'
+import {Avatar, Title} from '../components'
+
+export default function Memo() {
+  const headTexts = useMemo<string[]>(
+    () => ['NO.', 'NAME', 'JOB TITLE', 'EMAIL ADDRESS'],
+    []
+  )
+  const users = useMemo<D.IUser[]>(() => D.makeArray(100).map(D.makeRandomUser), [])
+
+  const head = useMemo(
+    () => headTexts.map(text => <th key={text}>{text}</th>),
+    [headTexts]
+  )
+
+  const body = useMemo(
+    () =>
+      users.map((user, index) => (
+        <tr key={user.uuid}>
+          <th>{index + 1}</th>
+          <td className="flex items-center">
+            <Avatar src={user.avatar} size="1.5rem" />
+            <p className="ml-2">{user.name}</p>
+          </td>
+          <td>{user.jobTitle}</td>
+          <td>{user.email}</td>
+        </tr>
+      )),
+    [users]
+  )
+
+  return (
+    <div className="mt-4">
+      <Title>Memo</Title>
+      <div className="overflow-x-auto mt-4 p-4">
+        <table className="table table-zebra compact w-full">
+          <thead>
+            <tr>{head}</tr>
+          </thead>
+          <tbody>{body}</tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+```
+
+### 콜백 함수를 캐시하는 useCallback 훅
+
+```ts
+// useCallback 훅 사용법
+const 캐시된_콜백_함수 = useCallback(원본_콜백_함수, 의존성목록)
+```
+
+**권장 방안**
+
+```ts
+const onClick = useCallback(() => alert('button clicked'), [])
+```
+
+**권장하지 않는 방안**
+
+```ts
+const callback = () => alert('button clicked')
+const onClick = useCallback(callback, [])
+```
+
+위 코드대로 하면 callback 함수는 항상 새로 만들어지므로 useCallback훅을 사용하는 의미가 퇴색된다.
+
+버튼을 누르면 버튼의 text값을 나타나게 하고 싶다.
+
+여기에서는 고차함수을 통해서 해결하였는데 난 다음과 같이 해결하였다.
+
+```tsx
+import {useCallback, useMemo} from 'react'
+
+import {Title} from '../components'
+import {Button} from '../theme/daisyui'
+
+import * as D from '../data'
+
+export default function Callback() {
+  const onClick = useCallback((name: string) => alert(`${name} clicked`), [])
+
+  const buttons = useMemo(
+    () =>
+      D.makeArray(3)
+        .map(D.randomName)
+        .map((name, index) => (
+          <Button
+            key={index}
+            onClick={() => onClick(name)}
+            className="btn-primary btn-wide btn-xs">
+            {name}
+          </Button>
+        )),
+    [onClick]
+  )
+
+  return (
+    <div className="mt-4">
+      <Title>Callback</Title>
+      <div className="flex justify-evenly mt-4">{buttons}</div>
+    </div>
+  )
+}
+```
+
+**고차함수를 통해 해결한 방안**
+
+```tsx
+import {useCallback, useMemo} from 'react'
+
+import {Title} from '../components'
+import {Button} from '../theme/daisyui'
+
+import * as D from '../data'
+
+export default function Callback() {
+  const onClick = useCallback((name: string) => () => alert(`${name} clicked`), [])
+
+  const buttons = useMemo(
+    () =>
+      D.makeArray(3)
+        .map(D.randomName)
+        .map((name, index) => (
+          <Button
+            key={index}
+            onClick={onClick(name)}
+            className="btn-primary btn-wide btn-xs">
+            {name}
+          </Button>
+        )),
+    [onClick]
+  )
+
+  return (
+    <div className="mt-4">
+      <Title>Callback</Title>
+      <div className="flex justify-evenly mt-4">{buttons}</div>
+    </div>
+  )
+}
+```

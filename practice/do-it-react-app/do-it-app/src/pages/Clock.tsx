@@ -1,6 +1,6 @@
 import type {FC} from 'react'
 
-import {Title, Subtitle} from '../components'
+import {Title, Subtitle, Div} from '../components'
 
 export type ClockProps = {
   today: Date
@@ -8,10 +8,10 @@ export type ClockProps = {
 
 const Clock: FC<ClockProps> = ({today}) => {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-primary text-white">
+    <Div className="flex flex-col items-center justify-center h-screen bg-primary text-white">
       <Title className="text-5xl">{today.toLocaleTimeString()}</Title>
       <Subtitle className="mt-4 text-2xl">{today.toLocaleDateString()}</Subtitle>
-    </div>
+    </Div>
   )
 }
 
