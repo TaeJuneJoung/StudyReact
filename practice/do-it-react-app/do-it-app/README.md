@@ -612,3 +612,50 @@ export default function Callback() {
   )
 }
 ```
+
+### useState 훅 이해하기
+
+```ts
+// useState 훅 선언문
+function useState<S>(initialState: S | (() => S)): [S, Dispatch<SetStateAction<S>>]
+
+// Dispatch와 SetStateAction 타입
+type Dispatch<A> = (value: A) => void
+type SetStateAction<S> = S | ((prevState: S) => S)
+```
+
+```ts
+const increment = useCallback(() => {
+  setCount(count + 1) // 의존성 목록에 count 넣지 않으면 count는 항상 0이 됨.
+}, [count])
+```
+
+```ts
+const increment = useCallback(() => {
+  setCount(count => count + 1) // 함수를 입력 변수로 세터 호출
+}, [])
+```
+
+#### `<input>` 컴포넌트에 훅 사용하기
+
+```ts
+// input 컴포넌트 선언문
+interface InputHTMLAttributes<T> extends HTMLAttributes<T> {
+  checked?: boolean | undefined
+  value?: string | ReadonlyArray<string> | number | undefined
+  onChange?: ChangeEventHandler<T> | undefined
+  // ...
+}
+```
+
+```ts
+const [value, setValue] = useState<string>('')
+
+const onChangeValue = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+  console.log(e.target.value)
+  setValue(preValue => e.target.value)
+}, [])
+```
+
+🤔TODO: 여기에서 useCallback을 쓰는 이유가 있나?
+🤔TODO: Modal 부분은 추후 다시!
