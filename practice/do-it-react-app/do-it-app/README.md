@@ -854,4 +854,30 @@ export default function ObjectState() {
 
 🤔TODO: select와 check 처리하는 방안도 알아둬야해!
 
-### useEffect와 useLayoutEffect 훅 이해하기
+## useEffect와 useLayoutEffect 훅 이해하기
+
+### 컴포넌트 생명 주기
+
+리액트의 클래스 컴포넌트에서는 `componentDidMount()` 메서드를 가지고 컴포넌트가 마운트 되는 시점 작업을 할 수 있다.
+
+함수형 컴포넌트의 `useEffect`와 `useLayoutEffect` 훅과 다른 점은 **훅은 의존성 목록이 변경될 때마다 콜백 함수를 계속 실행한다는 점**이다.
+
+```ts
+useEffect(콜백함수, 의존성 목록)
+useLayoutEffect(콜백함수, 의존성 목록)
+
+// 콜백함수
+콜백함수 = () => {}
+
+// 한번만 호출되는 반환 함수
+콜백함수 = () => {
+  return 반환 함수 // 언마운트될 때 한번만 호출
+}
+```
+
+- useEffect 훅은 비동기로 실행
+- useLayoutEffect 훅은 동기로 실행
+
+리액트 공식 문서에서는 useEffect을 권장하며, 구현이 안될때만 useLayoutEffect 훅을 사용하라고 하고 있다.
+
+## useRef와 useImperativeHandle 훅 이해하기
