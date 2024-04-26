@@ -1,8 +1,8 @@
 import {useClock} from './hooks/useClock'
+import ArrayState from './pages/ArrayState'
 import Callback from './pages/Callback'
 import Clock from './pages/Clock'
 import Memo from './pages/Memo'
-import NumberState from './pages/NumberState'
 import RadioInputTest from './pages/RadioInputTest'
 
 function App() {
@@ -11,7 +11,7 @@ function App() {
   return (
     <>
       <Clock today={today} />
-      <NumberState />
+      <ArrayState />
       <RadioInputTest />
       <Callback />
       <Memo />

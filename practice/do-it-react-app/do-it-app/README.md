@@ -659,3 +659,199 @@ const onChangeValue = useCallback((e: ChangeEvent<HTMLInputElement>) => {
 
 🤔TODO: 여기에서 useCallback을 쓰는 이유가 있나?
 🤔TODO: Modal 부분은 추후 다시!
+
+### HTML `<form>`요소
+
+form method 설정값이 POST이면 폼데이터를 암호화(encryption)하는 다음 3가지 방식 중 하나를 encType 속성에 설정한다.
+
+1. application/x-www-form-urlencoded (기본값)
+2. multipart/form-data
+3. text/plain
+
+하지만 리액트와 같은 SPA방식 프론트엔드 프레임워크를 사용할 때는 백엔드 웹 서버가 API방식으로 동작하므로 굳이 속성을 설정할 필요가 없다.
+
+form에서 onSubmit이벤트가 발생하면 웹 페이지를 다시 렌더링하기에 `e.preventDefault()`를 호출해 웹 페이지가 다시 렌더링되지 않도록 해야 한다.
+
+### FormData 클래스
+
+FormData는 자바스크립트 엔진이 기본으로 제공하는 클래스
+
+사용자가 입력한 데이터들을 웹 서버에 전송할 목적으로 사용
+
+FormData의 내용을 JSON포맷으로 바꾸고 싶다면 `Object.fromEntries()`함수를 이용하면 된다.
+
+```ts
+const formData = new FormData()
+
+formData.append('name', 'June')
+formData.append('age', 33)
+// ...
+const json = Object.fromEntries(fromData)
+```
+
+```tsx
+// pages/BasicForm.tsx
+import {ChangeEvent, FormEvent, useCallback, useState} from 'react'
+import {Title} from '../components'
+import {Input} from '../theme/daisyui/Input'
+
+export default function BasicForm() {
+  const [name, setName] = useState<string>('')
+  const [email, setAge] = useState<string>('')
+
+  const onSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+
+      const formData = new FormData()
+      formData.append('name', name)
+      formData.append('email', email)
+      console.log(Object.fromEntries(formData))
+    },
+    [name, email]
+  )
+
+  const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setName(notUsed => e.target.value)
+  }, [])
+
+  const onChangeEmail = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setAge(notUsed => e.target.value)
+  }, [])
+
+  return (
+    <section className="mt-4">
+      <Title>BasicForm</Title>
+      <div className="flex justify-center mt-4">
+        <form onSubmit={onSubmit}>
+          <div className="form-control">
+            <label htmlFor="name" className="label">
+              <span className="label-text">User Name</span>
+            </label>
+            <Input
+              value={name}
+              onChange={onChangeName}
+              id="name"
+              type="text"
+              placeholder="enter your name"
+              className="input-primary"
+            />
+          </div>
+          <div className="form-control">
+            <label htmlFor="email" className="label">
+              <span className="label-text">User Age</span>
+            </label>
+            <Input
+              value={email}
+              onChange={onChangeEmail}
+              id="email"
+              type="text"
+              placeholder="enter your email"
+              className="input-primary"
+            />
+          </div>
+          <div className="flex justify-center mt-4">
+            <input
+              type="submit"
+              value="SUBMIT"
+              className="w-1/2 btn btn-sm btn-primary"
+            />
+            <input
+              type="button"
+              defaultValue="CANCEL"
+              className="w-1/2 ml-4 btn btn-sm"
+            />
+          </div>
+        </form>
+      </div>
+    </section>
+  )
+}
+```
+
+이렇게 완성했던 것을 state 자체를 object로 만들어서 처리할 수 있다.
+
+```tsx
+// pages/ObjectState.tsx
+import {ChangeEvent, FormEvent, useCallback, useState} from 'react'
+import {Title} from '../components'
+import {Input} from '../theme/daisyui/Input'
+
+type FormType = {
+  name: string
+  email: string
+}
+
+export default function ObjectState() {
+  const [form, setForm] = useState<FormType>({name: '', email: ''})
+
+  const onSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+
+      console.log(form)
+    },
+    [form]
+  )
+
+  const onChangeName = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setForm(state => ({...state, name: e.target.value}))
+  }, [])
+
+  const onChangeEmail = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    setForm(state => ({...state, email: e.target.value}))
+  }, [])
+
+  return (
+    <section className="mt-4">
+      <Title>BasicForm</Title>
+      <div className="flex justify-center mt-4">
+        <form onSubmit={onSubmit}>
+          <div className="form-control">
+            <label htmlFor="name" className="label">
+              <span className="label-text">User Name</span>
+            </label>
+            <Input
+              value={form.name}
+              onChange={onChangeName}
+              id="name"
+              type="text"
+              placeholder="enter your name"
+              className="input-primary"
+            />
+          </div>
+          <div className="form-control">
+            <label htmlFor="email" className="label">
+              <span className="label-text">User Age</span>
+            </label>
+            <Input
+              value={form.email}
+              onChange={onChangeEmail}
+              id="email"
+              type="text"
+              placeholder="enter your email"
+              className="input-primary"
+            />
+          </div>
+          <div className="flex justify-center mt-4">
+            <input
+              type="submit"
+              value="SUBMIT"
+              className="w-1/2 btn btn-sm btn-primary"
+            />
+            <input
+              type="button"
+              defaultValue="CANCEL"
+              className="w-1/2 ml-4 btn btn-sm"
+            />
+          </div>
+        </form>
+      </div>
+    </section>
+  )
+}
+```
+
+🤔TODO: select와 check 처리하는 방안도 알아둬야해!
+
+### useEffect와 useLayoutEffect 훅 이해하기
