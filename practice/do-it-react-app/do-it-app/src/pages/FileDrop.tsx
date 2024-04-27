@@ -1,4 +1,4 @@
-import {ChangeEvent, useCallback, useMemo, useRef, useState} from 'react'
+import {ChangeEvent, DragEvent, useCallback, useMemo, useRef, useState} from 'react'
 import {Div, Title} from '../components'
 import {useToggle} from '../hooks'
 import {imageFileReaderP} from '../utils'
@@ -77,8 +77,8 @@ export default function FileDrop() {
         )}
 
         <div
-          onDragOver={e => onDivDragOver}
-          onDrop={e => onDivDrop}
+          onDragOver={onDivDragOver}
+          onDrop={onDivDrop}
           className="flex flex-col items-center justify-center h-40 cursor-pointer">
           <p className="text-3xl font-bold">drop images or click me</p>
         </div>
