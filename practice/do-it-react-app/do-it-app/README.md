@@ -881,3 +881,129 @@ useLayoutEffect(콜백함수, 의존성 목록)
 리액트 공식 문서에서는 useEffect을 권장하며, 구현이 안될때만 useLayoutEffect 훅을 사용하라고 하고 있다.
 
 ## useRef와 useImperativeHandle 훅 이해하기
+
+ref 속성에 적용하는 값을 만들어 주는 훅
+
+### ref 속성이란?
+
+ref 속성은 초기에는 null이었다가 마운트되는 시점에서 물리 DOM 객체의 값이 된다.
+
+Ref<T>는 current라는 읽기 전용 속성을 가진 RefObject<T> 타입이다. current는 null일수 있다.
+
+### useRef 훅
+
+🤔TODO: useRef에 대한 정의
+
+#### forwardRef 함수가 필요한 이유
+
+ref는 물리 DOM객체를 얻으려고 사용하는 건데, 사용자 컴포넌트에서는 물리 DOM 객체를 얻을 수 없다.
+
+```tsx
+// theme/daisyui/Input.tsx
+import {DetailedHTMLProps, FC, InputHTMLAttributes} from 'react'
+
+export type ReactInputProps = DetailedHTMLProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+>
+
+export type inputProps = ReactInputProps & {}
+
+export const Input: FC<inputProps> = ({className: _className, ...props}) => {
+  const className = ['input', _className].join(' ')
+  return <input {...props} className={className} />
+}
+```
+
+```tsx
+// pages/ForwardRefTest.tsx
+import {useCallback, useEffect, useRef} from 'react'
+import {Title} from '../components'
+import {Input} from '../theme/daisyui/Input'
+import {Button} from '../theme/daisyui'
+
+export default function ForwardRefTest() {
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const getValue = useCallback(
+    () => console.log(`input value: ${inputRef.current?.value}`),
+    []
+  )
+
+  useEffect(() => inputRef.current?.focus(), [])
+
+  return (
+    <section className="mt-4">
+      <Title>ForwardRefTest</Title>
+      <div className="flex justify-center mt-4">
+        <div className="flex flex-col w-1/3 p-2">
+          <Input ref={inputRef} className="input-primary" />
+          <Button onClick={getValue} className="mt-4 btn-primary">
+            GET VALUE
+          </Button>
+        </div>
+      </div>
+    </section>
+  )
+}
+```
+
+해당 부분을 이용해서 useRef를 사용하면 `components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?` 에러가 발생한다.
+
+```tsx
+// theme/daisyui/Input.tsx
+import {DetailedHTMLProps, InputHTMLAttributes, forwardRef} from 'react'
+
+export type ReactInputProps = DetailedHTMLProps<
+  InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+>
+
+export type inputProps = ReactInputProps & {}
+
+export const Input = forwardRef<HTMLInputElement, inputProps>((props, ref) => {
+  const {className: _className, ...inputProps} = props
+  const className = ['input', _className].join(' ')
+  return <input ref={ref} {...inputProps} className={className} />
+})
+```
+
+### useImperativeHandle 훅
+
+```ts
+const textInputRef = useRef<TextInput | null>(null)
+const setFocus = () => textInputRef.current?.focus()
+```
+
+그런데 다음과 같은 타입의 객체가 있다고 가정해보자.
+
+```ts
+export type TextInputMethods = {
+  focus: () => void
+  dismiss: () => void
+}
+```
+
+이때 useRef부분을 `TextInput` 대신 TextInputMethods를 사용하면 어떨까 하는 것이 `useImerativeHandle` 훅의 탄생 배경이다.
+
+```ts
+const methodsRef = useRef<TextInputMethods | null>(null)
+const setFocus = () => methodsRef.current?.focus()
+const dismissKeyboard = () => methodsRef.current?.dismiss()
+```
+
+#### useImperativeHandle 훅의 타입
+
+```ts
+function useImperativeHandle<T, R extends T>(
+  ref: Ref<T> | undefined,
+  init: () => R,
+  deps?: DependencyList
+): void
+```
+
+`ref`는 forwardRef 호출로 얻는 값을 입력하는 용도, init은 useMemo 훅 때와 유사하게 `() => 메서드_객체` 형태의 함수를 입력하는 용도이다.
+
+```ts
+const handle = useImperativeHandle(ref, () => ({}), [])
+```

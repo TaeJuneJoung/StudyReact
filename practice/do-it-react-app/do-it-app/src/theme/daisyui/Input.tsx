@@ -1,4 +1,4 @@
-import {DetailedHTMLProps, FC, InputHTMLAttributes} from 'react'
+import {DetailedHTMLProps, FC, InputHTMLAttributes, forwardRef} from 'react'
 
 export type ReactInputProps = DetailedHTMLProps<
   InputHTMLAttributes<HTMLInputElement>,
@@ -7,7 +7,10 @@ export type ReactInputProps = DetailedHTMLProps<
 
 export type inputProps = ReactInputProps & {}
 
-export const Input: FC<inputProps> = ({className: _className, ...props}) => {
-  const className = ['input', _className].join(' ')
-  return <input {...props} className={className} />
-}
+export const Input: FC<inputProps> = forwardRef<HTMLInputElement, inputProps>(
+  (props, ref) => {
+    const {className: _className, ...inputProps} = props
+    const className = ['input', _className].join(' ')
+    return <input ref={ref} {...inputProps} className={className} />
+  }
+)
