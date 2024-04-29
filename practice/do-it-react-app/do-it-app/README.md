@@ -1015,3 +1015,96 @@ const regEx =
   /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
 const valid = regEx.test(value)
 ```
+
+## useContext 훅
+
+컨텍스트는 props drilling을 막기 위해서 사용
+
+props을 계속 아래에 전달해주면 성능적이나 유지보수 차원에서도 어려움이 생긴다.
+
+### Tailwind CSS 중단점 접두사
+
+| 키워드 |     의미      | 최소 크기 |      CSS @media 규칙       |
+| :----: | :-----------: | :-------: | :------------------------: |
+|   sm   |     small     |   640px   | @media (min-width: 640px)  |
+|   md   |    medium     |   768px   | @media (min-width: 768px)  |
+|   lg   |     large     |  1024px   | @media (min-width: 1024px) |
+|   xl   |  extra large  |  1280px   | @media (min-width: 1280px) |
+|  2xl   | 2 extra large |  1536px   | @media (min-width: 1536px) |
+
+**Context 생성**
+
+```ts
+// contexts/ResponsiveContext.tsx
+import {FC, PropsWithChildren, createContext, useContext} from 'react'
+import {useWindowResize} from '../hooks'
+
+type ContextType = {
+  breakpoint: string
+}
+
+const defaultContextValue: ContextType = {
+  breakpoint: ''
+}
+
+export const ResponsiveContext = createContext<ContextType>(defaultContextValue)
+
+type ResponsiveProviderProps = {}
+export const ResponsiveProvider: FC<PropsWithChildren<ResponsiveProviderProps>> = ({
+  children,
+  ...props
+}) => {
+  const [width] = useWindowResize()
+  // prettier-ignore
+  const breakpoint = width < 640 ? 'sm' :
+                     width < 768 ? 'md' :
+                     width < 1024 ? 'lg' :
+                     width < 1280 ? 'xl' : '2xl'
+
+  const value = {
+    breakpoint
+  }
+  return <ResponsiveContext.Provider value={value} children={children} />
+}
+
+export const useResponsive = () => {
+  const {breakpoint} = useContext(ResponsiveContext)
+  return breakpoint
+}
+```
+
+```tsx
+// pages/ResponsiveContextTest.tsx
+import {Subtitle, Title} from '../components'
+import {useResponsive} from '../contexts'
+
+export default function ResponsiveContextTest() {
+  const breakpoint = useResponsive()
+  return (
+    <section className="mt-4">
+      <Title>ResponsiveContextTest</Title>
+      <div className="mt-4">
+        <Subtitle>breakpoint: {breakpoint}</Subtitle>
+      </div>
+    </section>
+  )
+}
+```
+
+```tsx
+// App.tsx
+import {ResponsiveProvider} from './contexts'
+import ResponsiveContextTest from './pages/ResponsiveContextTest'
+
+function App() {
+  return (
+    <ResponsiveProvider>
+      <main>
+        <ResponsiveContextTest />
+      </main>
+    </ResponsiveProvider>
+  )
+}
+
+export default App
+```
