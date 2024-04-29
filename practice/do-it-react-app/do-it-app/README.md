@@ -1007,3 +1007,11 @@ function useImperativeHandle<T, R extends T>(
 ```ts
 const handle = useImperativeHandle(ref, () => ({}), [])
 ```
+
+🤔TODO: 정규식 표현 대략 뜻은 알아두기
+
+```ts
+const regEx =
+  /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i
+const valid = regEx.test(value)
+```

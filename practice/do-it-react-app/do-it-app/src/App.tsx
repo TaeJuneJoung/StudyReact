@@ -6,6 +6,7 @@ import FileDrop from './pages/FileDrop'
 import ForwardRefTest from './pages/ForwardRefTest'
 import Memo from './pages/Memo'
 import RadioInputTest from './pages/RadioInputTest'
+import ValidatableInputTest from './pages/ValidatableInputTest'
 
 function App() {
   const today = useClock()
@@ -15,6 +16,7 @@ function App() {
       <Clock today={today} />
       <FileDrop />
       <ForwardRefTest />
+      <ValidatableInputTest />
       <ArrayState />
       <RadioInputTest />
       <Callback />
