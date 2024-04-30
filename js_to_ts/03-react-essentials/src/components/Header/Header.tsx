@@ -1,4 +1,4 @@
-import {FC} from 'react'
+import type {FC} from 'react'
 
 import reactImg from '../../assets/react-core-concepts.png'
 import classes from './Header.module.css'

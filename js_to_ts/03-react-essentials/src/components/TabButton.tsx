@@ -1,4 +1,4 @@
-import {FC, MouseEventHandler, ReactNode} from 'react'
+import type {FC, MouseEventHandler, ReactNode} from 'react'
 
 type TabButtonProps = {
   children?: ReactNode | undefined
