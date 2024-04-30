@@ -1108,3 +1108,15 @@ function App() {
 
 export default App
 ```
+
+## 리덕스
+
+```bash
+npm install redux @reduxjs/toolkit react-redux
+```
+
+리덕스에서 리듀서(reducer)는 현재 상태와 액션이라는 2가지 매개변수로 새로운 상태를 만들어서 반환한다.
+
+🤔TODO: Clock 실행시 지속적으로 에러가 발생함
+
+> 무슨 문제로 인한 것인지?

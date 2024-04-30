@@ -1,13 +1,18 @@
-import {ResponsiveProvider} from './contexts'
-import ResponsiveContextTest from './pages/ResponsiveContextTest'
+import {Provider as ReduxProvider} from 'react-redux'
+import {useStore} from './store'
+
+import ReduxClock from './pages/ReduxClock'
+import UseReducerClock from './pages/UseReducerClock'
 
 function App() {
+  const store = useStore()
   return (
-    <ResponsiveProvider>
-      <main>
-        <ResponsiveContextTest />
+    <ReduxProvider store={store}>
+      <main className="p-8">
+        <UseReducerClock />
+        <ReduxClock />
       </main>
-    </ResponsiveProvider>
+    </ReduxProvider>
   )
 }
 
