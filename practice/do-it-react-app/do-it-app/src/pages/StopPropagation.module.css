@@ -1,0 +1,19 @@
+span {
+  font-family: 'Material Icons', sans-serif;
+}
+
+.textRed {
+  color: red;
+}
+
+.textBlue {
+  color: blue;
+}
+
+.fontSize16 {
+  font-size: 16px;
+}
+
+.fontSize24 {
+  font-size: 24px;
+}
