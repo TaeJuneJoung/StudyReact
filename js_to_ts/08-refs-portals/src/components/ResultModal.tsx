@@ -1,4 +1,4 @@
-import {type FC, forwardRef, useImperativeHandle, useRef} from 'react'
+import {forwardRef, useImperativeHandle, useRef} from 'react'
 import {createPortal} from 'react-dom'
 
 export type ResultModalProps = {
@@ -7,7 +7,11 @@ export type ResultModalProps = {
   onReset: () => void
 }
 
-const ResultModal: FC<ResultModalProps> = forwardRef(
+export interface DialogActions {
+  open: () => void
+}
+
+const ResultModal = forwardRef<DialogActions, ResultModalProps>(
   ({targetTime, remainTime, onReset}, ref) => {
     const dialog = useRef<HTMLDialogElement | null>(null)
     const isUserLost = remainTime <= 0
