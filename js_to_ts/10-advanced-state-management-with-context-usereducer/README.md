@@ -1,30 +1,54 @@
-# React + TypeScript + Vite
+# Context
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+props를 통해서 값을 전달하다보면 한참 아래의 자손에게 보내야하는 일이 생길 때 중간에서는 사용하지 않지만 계속 보내줘야한다. 이러한 현상을 `props drilling`이라고 표현한다. 컴포넌트의 재사용에 어려움이 생기기에 좋지 않은 방도이다.
 
-Currently, two official plugins are available:
+이를 쉽게 해결하기 위한 방안으로 Context API가 있다.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+부모 컴포넌트 -> `createContext` -> `<Provider value={} />`
 
-## Expanding the ESLint configuration
+사용처 자식 컴포넌트 -> `useContext` 공유 정보 취득
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+```tsx
+// store/shopping.tsx [미완성]
+import {type FC, type PropsWithChildren, createContext} from 'react'
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
+type itemType = {
+  id: string
+  name: string
+  price: number
+  quantity: number
 }
+
+type ContextType = {
+  items: itemType[]
+  addItemToCart: () => void
+  updateCartItemQuantity: () => void
+}
+
+const defaultContextValue: ContextType = {
+  items: [],
+  addItemToCart: () => {},
+  updateCartItemQuantity: () => {}
+}
+
+export const CartContext = createContext<ContextType>(defaultContextValue)
+
+const CartContextProvider: FC<PropsWithChildren> = ({children}) => {
+  const cartValue: ContextType = {
+    items: [],
+    addItemToCart: () => {},
+    updateCartItemQuantity: () => {}
+  }
+  return <CartContext.Provider value={cartValue} children={children} />
+}
+
+export default CartContextProvider
 ```
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+## useReducer
+
+상태 관리의 목적을 가지고 하나 또는 그 이상의 값을 보다 단순하게 하나의 값으로 줄이는 훅
+
+```tsx
+const [상태값, reducer함수 연결함수] = useReducer(reducer함수, 초기값)
+```
