@@ -1,4 +1,5 @@
-import {type FC} from 'react'
+import {useEffect, type FC} from 'react'
+import ProgressBar from './ProgressBar'
 
 const TIMER: number = 3000
 
@@ -8,7 +9,16 @@ type DeleteConfirmationProps = {
 }
 
 const DeleteConfirmation: FC<DeleteConfirmationProps> = ({onCancel, onConfirm}) => {
-  console.log('Confirmation')
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onConfirm()
+    }, TIMER)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [onConfirm])
+
   return (
     <div id="delete-confirmation">
       <h2>Are you sure?</h2>
@@ -21,6 +31,7 @@ const DeleteConfirmation: FC<DeleteConfirmationProps> = ({onCancel, onConfirm}) 
           Yes
         </button>
       </div>
+      <ProgressBar timer={TIMER} />
     </div>
   )
 }
