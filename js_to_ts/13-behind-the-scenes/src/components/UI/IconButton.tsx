@@ -3,6 +3,7 @@ import log from '../../log'
 
 type IconButtonType = {
   icon: ElementType
+  onClick: () => void
 }
 
 const IconButton: FC<PropsWithChildren<IconButtonType>> = ({

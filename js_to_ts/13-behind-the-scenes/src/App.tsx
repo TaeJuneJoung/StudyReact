@@ -2,6 +2,7 @@ import {useState} from 'react'
 import ConfigureCounter from './components/Counter/ConfigureCounter'
 import Header from './components/Header'
 import log from './log'
+import Counter from './components/Counter/Counter'
 
 function App() {
   log('<App /> rendered')
@@ -17,6 +18,7 @@ function App() {
       <Header />
       <main>
         <ConfigureCounter onSet={handleSetCount} />
+        <Counter initialCount={choseCount} />
       </main>
     </>
   )
