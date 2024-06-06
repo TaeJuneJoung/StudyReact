@@ -55,6 +55,8 @@ const totalTodosCount2 = useMemo(() => todos.length, [todos]);
 - 불필요한 렌더링 줄이기
 - UX경험 올리기(예상치 못한 에러 상황 대응)
 
+[내용 확인](./01wedding/readMe.md)
+
 ### 카드사 사이트
 
 #### 최적화 포인트
