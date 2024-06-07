@@ -98,6 +98,89 @@ $ yarn remove @testing-library/jest-dom
 $ yarn add -D @types/testing-library__jest-dom @testing-library/jest-dom
 ```
 
+### Perttier와 ESLint 세팅
+
+VS Code에서 Extension 설치
+
+#### ESLint 설정
+
+1. 설치 
+```bash
+$ yarn add -D eslint prettier eslint-plugin-prettier eslint-config-prettier eslint-plugin-react eslint-config-react-app
+```
+
+2. Config 설정 분리
+
+.eslintrc.json 파일을 만들어서 package.json 부분에서 해당 부분을 지우기.
+```json
+"eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+```
+
+.eslintrc.json에 작성한 내용
+```json
+{
+  "extends": [
+    "react-app",
+    "react-app/jest",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error"
+  }
+}
+```
+
+.prettierrc 작성한 내용
+```json
+{
+  "useTabs": false,
+  "printWidth": 80,
+  "tabWidth": 2,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "endOfLine": "lf",
+  "semi": false,
+  "arrowParens": "always"
+}
+```
+
+VS CODE settings.json에 설정된 내용
+**기존 내가 한 내용**
+```json
+{
+  "editor.tabSize": 2,
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[typescript]": {
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}
+
+```
+
+**강의 내용**
+```json
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.eol": "\n",
+}
+```
+
+
+
+3. yarn dlx @yarnpkg/sdks vscode
+
 ---
 
 npm에서 vite와 연동되면서 속도적인 측면이나 편의성이 괜찮아졌는데 굳이 이렇게 세팅해서 yarn으로 할 필요가 있을까?
