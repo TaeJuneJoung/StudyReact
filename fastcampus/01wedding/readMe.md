@@ -223,3 +223,46 @@ CSS의 모든 기능을 포함하고 있고, 변수, 믹스인, 상속과 같은
 $ yarn add classnames sass
 ```
 
+### JSON Server
+
+JSON파일을 이용하여 REST API서버를 빠르고 간단하게 생성하기 위한 도구
+
+JSON server를 이용하면 JSON파일을 데이터베이스처럼 동작하게 할 수 있고, HTTP 메서드를 활용하여 데이터에 접근하고 수정할 수 있는 api를 만들 수 있다.
+
+https://github.com/typicode/json-server
+
+```bash
+$ yarn add -D json-server
+```
+
+db.json파일을 만든 후에
+
+```bash
+$ json-server --watch db.json
+```
+
+### Font
+
+EOT -> TTF/OTF -> WOFF -> WOFF2순으로 용량이 작다.
+
+WOFF의 경우 지원해주는 브라우저가 폭 넓음. WOFF2는 최신이다보니 버전이 높고 지원을 안하는 브라우저도 있다. WOFF2를 사용하되 지원하지 못하는 브라우저를 위해서 WOFF를 사용.
+
+
+#### 폰트 적용 방법
+
+1. 웹 폰트 서비스 이용
+
+ex) `<link href="폰트서비스" />`
+
+https://hangeul.naver.com/font/clova
+
+웹 폰트 서비스를 이용했을 때 해당 서비스와의 통신이 문제가 생기면 웹페이지에서 문제가 발생할 수 있다는게 단점.
+
+2. 폰트 다운로드
+
+ex) @font-face {font-family: "폰트이름"; src: url("폰트경로");}
+
+ttf형태로 다운 받은 것을 WOFF, WOFF2로 변경해주기 위해서
+
+https://cloudconvert.com
+
