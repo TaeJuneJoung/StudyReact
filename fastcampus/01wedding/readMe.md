@@ -184,3 +184,42 @@ VS CODE settings.json에 설정된 내용
 ---
 
 npm에서 vite와 연동되면서 속도적인 측면이나 편의성이 괜찮아졌는데 굳이 이렇게 세팅해서 yarn으로 할 필요가 있을까?
+
+
+### 발생하는 에러 해결 방안
+
+[ISSUE](./issue.md)
+
+### Craco
+
+Craco는 Create-React-App Configuration Override의 약어로, CRA에 config 설정을 덮어쓰기 위한 패키지
+
+https://craco.js.org/
+
+
+```bash
+$ yarn add -D @craco/craco craco-alias
+```
+
+package.json 내용 수정
+```json
+"start": "craco start",
+"build": "craco build",
+"test": "craco test",
+```
+
+Craco를 통해서 바벨이나 웹팩 등의 설정도 쉽게 변경할 수 있다.
+
+tsconfig.paths.json 파일 생성
+
+
+### SCSS
+
+CSS의 기능을 확장시켜주는 도구
+
+CSS의 모든 기능을 포함하고 있고, 변수, 믹스인, 상속과 같은 추가적인 기능들을 제공하여 코드의 재사용성을 높이고 유지보수를 용이하게 만들어준다.
+
+```bash
+$ yarn add classnames sass
+```
+
