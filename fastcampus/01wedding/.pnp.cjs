@@ -39,6 +39,7 @@ const RAW_RUNTIME_STATE =
           ["@types/testing-library__jest-dom", "npm:6.0.0"],\
           ["classnames", "npm:2.5.1"],\
           ["craco-alias", "npm:3.0.1"],\
+          ["date-fns", "npm:3.6.0"],\
           ["eslint", "npm:8.57.0"],\
           ["eslint-config-prettier", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:9.1.0"],\
           ["eslint-config-react-app", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:7.0.1"],\
@@ -50,6 +51,7 @@ const RAW_RUNTIME_STATE =
           ["react-dom", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:18.3.1"],\
           ["react-scripts", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:5.0.1"],\
           ["sass", "npm:1.77.4"],\
+          ["swiper", "npm:11.1.4"],\
           ["typescript", "patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"],\
           ["web-vitals", "npm:2.1.4"]\
         ],\
@@ -73,6 +75,7 @@ const RAW_RUNTIME_STATE =
           ["@types/testing-library__jest-dom", "npm:6.0.0"],\
           ["classnames", "npm:2.5.1"],\
           ["craco-alias", "npm:3.0.1"],\
+          ["date-fns", "npm:3.6.0"],\
           ["eslint", "npm:8.57.0"],\
           ["eslint-config-prettier", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:9.1.0"],\
           ["eslint-config-react-app", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:7.0.1"],\
@@ -84,6 +87,7 @@ const RAW_RUNTIME_STATE =
           ["react-dom", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:18.3.1"],\
           ["react-scripts", "virtual:94da20d436e2b46515d845670f149b63bb0fac8d17c8e573ece0e8d59e7611f4b9384cdcbc43818674ff82a3552307300fe1c7fa35189af90d832bc090043ee7#npm:5.0.1"],\
           ["sass", "npm:1.77.4"],\
+          ["swiper", "npm:11.1.4"],\
           ["typescript", "patch:typescript@npm%3A4.9.5#optional!builtin<compat/typescript>::version=4.9.5&hash=289587"],\
           ["web-vitals", "npm:2.1.4"]\
         ],\
@@ -8209,6 +8213,15 @@ const RAW_RUNTIME_STATE =
           ["call-bind", "npm:1.0.7"],\
           ["es-errors", "npm:1.3.0"],\
           ["is-data-view", "npm:1.0.1"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["date-fns", [\
+      ["npm:3.6.0", {\
+        "packageLocation": "../../../../../C:/Users/jtj05/AppData/Local/Yarn/Berry/cache/date-fns-npm-3.6.0-e59d980978-10c0.zip/node_modules/date-fns/",\
+        "packageDependencies": [\
+          ["date-fns", "npm:3.6.0"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -17623,6 +17636,15 @@ const RAW_RUNTIME_STATE =
           ["csso", "npm:4.2.0"],\
           ["picocolors", "npm:1.0.1"],\
           ["stable", "npm:0.1.8"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["swiper", [\
+      ["npm:11.1.4", {\
+        "packageLocation": "../../../../../C:/Users/jtj05/AppData/Local/Yarn/Berry/cache/swiper-npm-11.1.4-d9e487eecf-10c0.zip/node_modules/swiper/",\
+        "packageDependencies": [\
+          ["swiper", "npm:11.1.4"]\
         ],\
         "linkType": "HARD"\
       }]\

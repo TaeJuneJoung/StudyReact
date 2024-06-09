@@ -21,3 +21,10 @@ $ yarn add -D eslint@8.57.0
 
 $ yarn dlx @yarnpkg/sdks vscode
 ```
+
+## 2. Video 이슈
+
+강의에서는 문제가 없이 설명했지만 `assets`폴더라 하여 src안에 assets폴더라고 생각하여 '나는 왜안되지?'했다.
+
+public폴더에서 진행하니 문제없이 작동
+

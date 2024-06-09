@@ -266,3 +266,45 @@ ttf형태로 다운 받은 것을 WOFF, WOFF2로 변경해주기 위해서
 
 https://cloudconvert.com
 
+
+svg이미지 구하는 곳
+
+https://www.iconfinder.com/
+
+
+
+### 인트로 동영상 구현
+
+- MP4(MPEG-4 Part 14): MP4는 최신 웹 브라우저 대부분과 호환되는 인터넷 친화적인 비디오 포맷
+
+- WebM: HTML5비디오 및 오디오 태그와 함께 사용하기 위해 Google이 개발한 비디오 포맷. 고화질 동영상을 손실 없이 효과적으로 압축할 수 있는 고성능 비디오 코덱인 VP8 및 VP9을 지원
+
+
+WebM과 MP4를 함께 사용하는 방법을 많이 사용하고 있다.
+
+
+```bash
+$ yarn add date-fns
+```
+
+```tsx
+<video controls autoPlay={true} muted={true} loop>
+  <source src="main.mp4" type="video/mp4"></source>
+</video>
+```
+
+source태그를 사용할 경우에는 autoPlay만 사용해서는 안되고 muted 태그도 사용해주어야 동작하게 된다.
+
+### 이미지 갤러리
+
+https://developer.mozilla.org/ko/docs/Learn/CSS/CSS_layout/Grids
+
+
+```bash
+$ yarn add swiper@^9
+```
+
+https://swiperjs.com/react
+
+여기서는 최신 11버전으로 진행했으며 문제없이 작동
+
