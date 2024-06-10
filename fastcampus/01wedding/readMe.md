@@ -308,3 +308,15 @@ https://swiperjs.com/react
 
 여기서는 최신 11버전으로 진행했으며 문제없이 작동
 
+
+### 본문 구현하기
+
+`@mixin`을 사용하여 공통 css클래스를 처리
+
+```scss
+@import "@scss/utils.scss";
+
+.container {
+    @include txt-content
+}
+```
