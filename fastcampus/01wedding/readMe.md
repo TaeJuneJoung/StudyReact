@@ -320,3 +320,24 @@ https://swiperjs.com/react
     @include txt-content
 }
 ```
+
+### 캘린더 구현
+
+https://react-day-picker.js.org
+
+```bash
+$ yarn add react-day-picker
+```
+
+
+```tsx
+<DayPicker
+  locale={ko}
+  month={weddingDate}
+  selected={weddingDate}
+  formatters={{ formatCaption: () => '' }}
+/>
+```
+
+`formatters={{ formatCaption: () => '' }}` 부분은 사용하지 않으면 기본적으로 월 연도가 나오던 부분을 안나오게 처리함
+

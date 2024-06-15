@@ -10,12 +10,14 @@ function Section({
 }: {
   children: React.ReactNode
   className?: string
-  title?: string
+  title?: React.ReactNode
 }) {
   return (
     <>
-      <div>{title}</div>
-      <section className={cx(['container', className])}>{children}</section>
+      <section className={cx(['container', className])}>
+        {title != null ? <div className={cx('txt-title')}>{title}</div> : null}
+        {children}
+      </section>
     </>
   )
 }
