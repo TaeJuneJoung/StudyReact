@@ -341,3 +341,66 @@ $ yarn add react-day-picker
 
 `formatters={{ formatCaption: () => '' }}` 부분은 사용하지 않으면 기본적으로 월 연도가 나오던 부분을 안나오게 처리함
 
+
+### 지도 구현
+
+https://apis.map.kakao.com
+
+`.env` 파일을 통한 key값 처리
+
+```tsx
+const mapContainer = useRef(null)
+
+useEffect(() => {
+  const script = document.createElement('script')
+  script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.REACT_APP_KAKAO_API_KEY}&autoload=false`
+  script.async = true
+
+  document.head.appendChild(script)
+
+  script.onload = () => {
+    window.kakao.maps.load(() => {
+      const position = new window.kakao.maps.LatLng(
+        location.lat,
+        location.lng,
+      )
+
+      const option = {
+        center: position,
+        level: 3,
+      }
+
+      const marker = new window.kakao.maps.Marker({
+        position,
+      })
+      const map = new window.kakao.maps.Map(mapContainer.current, option)
+      marker.setMap(map)
+    })
+  }
+}, [location])
+```
+
+### 연락처와 계좌 정보
+
+1. 아코디언 UI
+
+https://getbootstrap.com/docs/5.3/components/accordion/
+
+https://mui.com/material-ui/react-accordion/
+
+2. 계좌 복사
+
+https://www.npmjs.com/package/react-copy-to-clipboard
+
+```bash
+$ yarn add react-copy-to-clipboard
+$ yarn add -D @types/react-copy-to-clipboard
+```
+
+3. 전화 걸기
+
+4. 카카오페이 송금 링크
+
+### 공유하기
+
+https://developers.kakao.com/docs/latest/ko/message/message-template
