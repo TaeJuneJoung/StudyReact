@@ -15,6 +15,7 @@ import Contact from '@components/sections/Contact'
 import Share from '@components/sections/Share'
 
 import { Wedding } from '@models/wedding'
+import Modal from './components/shared/Modal'
 
 const cx = classNames.bind(styles)
 

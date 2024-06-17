@@ -404,3 +404,6 @@ $ yarn add -D @types/react-copy-to-clipboard
 ### 공유하기
 
 https://developers.kakao.com/docs/latest/ko/message/message-template
+
+### 참석 여부 구현
+
