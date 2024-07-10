@@ -407,3 +407,69 @@ https://developers.kakao.com/docs/latest/ko/message/message-template
 
 ### 참석 여부 구현
 
+#### Portals
+
+https://ko.react.dev/reference/react-dom/createPortal
+
+부모 요소에 영향을 주지 않고 다른 div에 모달을 띄우는 방안으로 사용
+
+```tsx
+import { ComponentProps } from 'react'
+
+import Modal from '@shared/Modal'
+
+type ModalProps = ComponentProps<typeof Modal>
+type ModalOptions = Omit<ModalProps, 'open'>
+
+interface ModalContextValue {
+  open: (options: ModalOptions) => void
+  close: () => void
+}
+```
+
+이러한 방식으로 유동적인 컴포넌트의 Props를 받을 수 있다.
+
+`Omit`은 typescript의 유틸리티 타입으로 특정 속성만 제거한 타입을 정의한다. (pick의 반대)
+
+
+```tsx
+// /AttendCountModal/index.tsx
+function AttendCountModal({wedding}: {wedding: Wedding}) {
+  const { open, close } = useModalContext()
+
+  const $input = useRef<HTMLInputElement>(null)
+
+  const haveSeenModal = localStorage.getItem('@have-seen-modal')
+
+  useEffect(() => {
+    if (haveSeenModal == 'true') {
+      return
+    }
+
+    open({
+      title: `현재 참석자 ${wedding.attendCount} 명`,
+      body: (
+        <div>
+          <input
+            ref={$input}
+            placeholder="참석 가능 인원을 추가해주세요"
+            style={{width: '100%'}}
+          />
+        </div>
+      ),
+      onLeftButtonClick: () => {
+        localStorage.setItem('@have-seen-modal', 'true')
+        close()
+      },
+      onRightButtonClick: () => {},
+    })
+    console.log('open')
+  }, []) // eslint-disable-line
+  return null
+}
+
+export default AttendCountModal
+```
+
+해당 부분에서 `useState`를 이용하여 입력한 숫자를 관리하게 되면 상태값 변화가 되어 리렌더링 되면서 open을 계속 호출하게 되는 문제가 생기게 된다. 그렇기에 useRef를 이용.
+
