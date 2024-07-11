@@ -12,9 +12,10 @@ function Video() {
         controls
         autoPlay={true}
         muted={false}
-        loop={true}
-        poster="/assets/poster.png"
+        loop={false}
+        poster="/assets/poster.webp"
       >
+        <source src="/assets/main.webm" type="video/webm"></source>
         <source src="/assets/main.mp4" type="video/mp4"></source>
       </video>
     </Section>

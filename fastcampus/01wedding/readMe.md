@@ -473,3 +473,41 @@ export default AttendCountModal
 
 해당 부분에서 `useState`를 이용하여 입력한 숫자를 관리하게 되면 상태값 변화가 되어 리렌더링 되면서 open을 계속 호출하게 되는 문제가 생기게 된다. 그렇기에 useRef를 이용.
 
+### 프로젝트 최적화 - 동영상
+
+동영상 최적화에 가장 중요한 건 용량을 줄이는 것
+
+1. 동영상 압축 https://www.media.io
+2. 동영상 길이 줄이기
+3. 적절한 동영상 포맷 사용 (mp4 -> webm)
+4. CDN 서비스 이용
+
+
+### 프로젝트 최적화 - 이미지
+
+Lighthouse를 통하여 최적화 파악
+
+**이미지 변환**
+
+https://squoosh.app/
+
+
+**미디어 라이브러리**
+
+https://console.cloudinary.com/
+
+이미지 크기를 주소를 통해서 관리 가능
+
+webp를 사용할 때 IE를 고려한다면 webp가 아닌 jpg나 png로도 지원을 해줘야 한다. 그래서 `picture`태그를 이용하여 이를 처리한다.
+
+```tsx
+<picture>
+  <source srcSet={`${src}.webp`} type="image/webp" />
+  <img src={`${src}.jpg`} alt="사진첩 이미지" />
+</picture>
+```
+
+그런데 확대해서 볼 때 작은 이미지가 적용되어 화질이 안좋은 문제가 발생하니 이를 위해서 cloudinary를 사용. Media Library에 Folders를 통해 내 이미지들 저장.
+
+⚠️update되었는지 이름이 자동으로 뒤에 값이 붙고 rename해도 url값은 기존 붙은 값을 사용한 link여야 한다.
+

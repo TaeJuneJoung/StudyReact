@@ -7,7 +7,8 @@
             "@scss/*": ["src/scss/*"],
             "@shared/*": ["src/components/shared/*"],
             "@models/*": ["src/models/*"],
-            "@contexts/*": ["src/contexts/*"]
+            "@contexts/*": ["src/contexts/*"],
+            "@utils/*": ["src/utils/*"]
         }
     }
 }
