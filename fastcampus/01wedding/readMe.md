@@ -473,7 +473,9 @@ export default AttendCountModal
 
 해당 부분에서 `useState`를 이용하여 입력한 숫자를 관리하게 되면 상태값 변화가 되어 리렌더링 되면서 open을 계속 호출하게 되는 문제가 생기게 된다. 그렇기에 useRef를 이용.
 
-### 프로젝트 최적화 - 동영상
+## 프로젝트 최적화
+
+### 동영상
 
 동영상 최적화에 가장 중요한 건 용량을 줄이는 것
 
@@ -483,7 +485,7 @@ export default AttendCountModal
 4. CDN 서비스 이용
 
 
-### 프로젝트 최적화 - 이미지
+### 이미지
 
 Lighthouse를 통하여 최적화 파악
 
@@ -510,4 +512,138 @@ webp를 사용할 때 IE를 고려한다면 webp가 아닌 jpg나 png로도 지�
 그런데 확대해서 볼 때 작은 이미지가 적용되어 화질이 안좋은 문제가 발생하니 이를 위해서 cloudinary를 사용. Media Library에 Folders를 통해 내 이미지들 저장.
 
 ⚠️update되었는지 이름이 자동으로 뒤에 값이 붙고 rename해도 url값은 기존 붙은 값을 사용한 link여야 한다.
+
+
+### 폰트
+
+- FOIT(flash of invisible text)
+
+폰트를 다운로드 하기 전에는 텍스트를 노출하지 않습니다.
+
+- FOUT(flash of unstyled text)
+
+폰트가 다운로드되기 전에는 기본 폰트를 노출합니다. 다운로드 후에 폰트를 교체합니다.
+
+> - swap(FOUT): 폰트를 다운받기 전에는 기본 폰트를 노출하고 다운로드 완료 후 폰트 교체
+> - block(FOIT): 3초 내에 폰트를 다운받지 못하면 기본 폰트 노출
+- fallback(FOIT): 0.1초 정도 block이 발생. 3초 이내 다운받지 못한다면 다운로드 여부 상관없이 기본 폰트 노출(캐시)
+- optional(FOIT): fallback과 비슷. 폰트가 다운로드 받는 시간이 너무 오래 걸리면 브라우저가 연결을 취소할 수 있다.(캐시)
+
+```scss
+@font-face {
+    font-family: 'NanumGiBbeumBarkEum';
+    src:
+        url('../assets/fonts/NanumGiBbeumBarkEum.woff2') format('woff2'),
+        url('../assets/fonts/NanumGiBbeumBarkEum.woff') format('woff'),
+        url('../assets/fonts/NanumGiBbeumBarkEum.ttf') format('ttf');
+    font-display: fallback;
+}
+```
+
+`font-display`를 이용해서 사용.
+
+#### 용량을 줄이는 방법
+
+EOT -> TTF/OTF -> WOFF -> WOFF2 순으로 용량이 작아진다.
+
+**Subset (필요한 글자들만 추려서 폰트 만들기)**
+
+https://namu.wiki/w/%EC%99%84%EC%84%B1%ED%98%95/%ED%95%9C%EA%B8%80%20%EB%AA%A9%EB%A1%9D/KS%20X%201001
+
+https://transfonter.org/
+
+영어랑 숫자, 특수문자 추가해서 간추리면 용량이 줄어든다.
+```bash
+# 추가해준 부분
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789`~!@#$%^&*()-_=+\|[]{};:'",.<>/?
+```
+
+**폰트 로드 속도 개선(Preload)**
+
+FOIT와 FOUT 시간을 줄이기 위해 폰트를 미리 로드
+
+https://www.npmjs.com/package/webpack-font-preload-plugin
+
+```bash
+yarn add -D webpack-font-preload-plugin
+```
+
+craco.config.js에 해당 부분 추가함.
+```js
+const CracoAlias = require('craco-alias')
+const FontPreloadPlugin = require('webpack-font-preload-plugin')
+
+module.exports = {
+	plugins: [
+		{
+			plugin: CracoAlias,
+			options: {
+				source: 'tsconfig',
+				tsConfigPath: 'tsconfig.paths.json',
+			}
+		}
+	],
+	webpack: {
+		plugins: {
+			add: [new FontPreloadPlugin()],
+		}
+	}
+}
+```
+
+이렇게 되면 적용된다.
+
+```js
+plugins: {
+  add: [new FontPreloadPlugin({
+    extensions: ['woff2'],
+  })],
+}
+```
+
+
+### 불필요한 렌더링 줄이기
+
+**React dev tools**
+
+Chrome 확장 프로그램
+
+#### Memo 사용
+
+Props가 변경되지 않는 이상 다시 렌더링하지 않는다.
+
+https://ko.react.dev/reference/react/memo
+
+props가 빈번하게 바뀌는 컴포넌트는 memo를 하면 안된다.
+
+예시를 들면, 여기에서 캘린더는 메모를 사용하는 것이 좋고, 사진첩의 경우는 memo를 사용하지 않는 것이 좋다.
+
+`export default memo(Modal)`이런식으로 memo를 사용하여 처리해줌.
+
+#### useCallback 사용
+
+함수 정의를 캐시하는 React Hook으로 리렌더링시에 새롭게 함수를 만들지 않는다.
+
+https://ko.react.dev/reference/react/useCallback
+
+```tsx
+const open = useCallback((options: ModalOptions) => {
+  setModalState({ ...options, open: true })
+}, [])
+const close = useCallback(() => {
+  setModalState(defaultValues)
+}, [])
+
+const values = useMemo(
+  () => ({
+    open,
+    close,
+  }),
+  [open, close],
+)
+```
+
+Modal의 open, close가 지속적으로 바뀌어야 할 값이 있는 것이 아니고 values로 담은 것도 변화가 있을 필요가 없으니 다음과 같이 처리.
 
