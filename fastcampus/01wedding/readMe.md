@@ -647,3 +647,80 @@ const values = useMemo(
 
 Modal의 open, close가 지속적으로 바뀌어야 할 값이 있는 것이 아니고 values로 담은 것도 변화가 있을 필요가 없으니 다음과 같이 처리.
 
+### 렌더링에 집중 할 수 있는 컴포넌트 환경
+
+비즈니스 로직에 대한 코드와 화면을 그리는 컴포넌트 코드가 역할에 맞게 명확하게 분리되어 있는 환경
+
+1. 청접장 데이터를 불러오는 부분을 커스텀훅 처리
+2. APp컴포넌트는 화면을 구성하는데 집중
+
+
+**추상화**
+
+내부의 로직과 복합성을 감추고 사용자에게 간결하고 명확한 인터페이스를 제공
+
+```tsx
+const {data, isLoading, error} = useFetchTodos();
+```
+
+
+### 선언적 코딩하기
+
+동작이 예상가능한 추상화된 코드
+
+```ts
+// 감지 이벤트를 만드는거 같아 기재함
+let options = {
+  root: document.querySelector('#scrollArea),
+  rootMargin: '0px',
+  threshold: 1.0,
+};
+
+let observer = new IntersectionObserver(callback, options);
+```
+
+**Suspense**
+
+자식 요소가 로드되기 전까지 화면에 대체 UI를 보여준다.
+
+https://ko.react.dev/reference/react/Suspense
+
+
+**React Query**
+
+서버의 상태를 관리하는 라이브러리
+
+선언적으로 상태와 에러, 로딩 관리를 할 수 있다.
+
+캐싱, 값 업데이트 등 비동기 과정을 편하게 사용할 수 있도록 도와준다.
+
+https://tanstack.com/query/latest
+
+강의에서는 v3, 현재 최신은 v5
+
+v5로 진행함.
+
+```bash
+$ yarn add @tanstack/react-query
+$ yarn add -D @tanstack/eslint-plugin-query
+```
+
+```tsx
+// index.tsx
+
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
+
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+root.render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ModalContext>
+        <App />,
+      </ModalContext>
+    </QueryClientProvider>
+  </React.StrictMode>,
+)
+```
+Suspense 기능을 이용하기 위해서 v5에서는 `useSuspenseQuery`를 이용하면 된다.

@@ -44,7 +44,7 @@ export function ModalContext({ children }: { children: React.ReactNode }) {
       open,
       close,
     }),
-    [],
+    [open, close],
   )
 
   return (

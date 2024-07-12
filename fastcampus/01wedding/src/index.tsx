@@ -1,18 +1,26 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 
 import App from './App'
-import { ModalContext } from './contexts/ModalContext'
+import { ModalContext } from '@contexts/ModalContext'
 import reportWebVitals from './reportWebVitals'
+import FullScreenMessage from '@shared/FullScreenMessage'
 
 import './scss/global.scss'
+
+const queryClient = new QueryClient()
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
   <React.StrictMode>
-    <ModalContext>
-      <App />,
-    </ModalContext>
+    <QueryClientProvider client={queryClient}>
+      <ModalContext>
+        <Suspense fallback={<FullScreenMessage type="loading" />}>
+          <App />,
+        </Suspense>
+      </ModalContext>
+    </QueryClientProvider>
   </React.StrictMode>,
 )
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import useWedding from '@hooks/useWedding'
 
 import classNames from 'classnames/bind'
 import styles from './App.module.scss'
@@ -14,43 +14,15 @@ import Map from '@components/sections/Map'
 import Contact from '@components/sections/Contact'
 import Share from '@components/sections/Share'
 
-import { Wedding } from '@models/wedding'
-import Modal from './components/shared/Modal'
 import AttendCountModal from './components/AttendCountModal'
 
 const cx = classNames.bind(styles)
 
 function App() {
-  const [wedding, setWedding] = useState<Wedding | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(false)
-
   // 1. wedding 데이터 호출
-  useEffect(() => {
-    setLoading(true)
+  const { wedding, isLoading, error } = useWedding()
 
-    // callback, promise, async/await
-    fetch('http://localhost:8888/wedding')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error('청접장 정보를 불러오지 못했습니다.')
-        }
-
-        return response.json()
-      })
-      .then((data) => {
-        setWedding(data)
-      })
-      .catch((error) => {
-        console.log('에러발생', error)
-        setError(true)
-      })
-      .finally(() => {
-        setLoading(false)
-      })
-  }, [])
-
-  if (loading) {
+  if (isLoading) {
     return <FullScreenMessage type="loading" />
   }
 
