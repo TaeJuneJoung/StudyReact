@@ -3,7 +3,6 @@ import useWedding from '@hooks/useWedding'
 import classNames from 'classnames/bind'
 import styles from './App.module.scss'
 
-import FullScreenMessage from '@shared/FullScreenMessage'
 import Heading from '@components/sections/Heading'
 import Video from '@components/sections/Video'
 import ImageGallery from '@components/sections/ImageGallery'
@@ -14,21 +13,13 @@ import Map from '@components/sections/Map'
 import Contact from '@components/sections/Contact'
 import Share from '@components/sections/Share'
 
-import AttendCountModal from './components/AttendCountModal'
+import AttendCountModal from '@components/AttendCountModal'
 
 const cx = classNames.bind(styles)
 
 function App() {
   // 1. wedding 데이터 호출
-  const { wedding, isLoading, error } = useWedding()
-
-  if (isLoading) {
-    return <FullScreenMessage type="loading" />
-  }
-
-  if (error) {
-    return <FullScreenMessage type="error" />
-  }
+  const { wedding } = useWedding()
 
   if (wedding == null) {
     return null

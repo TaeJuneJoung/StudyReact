@@ -724,3 +724,26 @@ root.render(
 )
 ```
 Suspense 기능을 이용하기 위해서 v5에서는 `useSuspenseQuery`를 이용하면 된다.
+
+
+### 에러 처리가 필요한 이유
+
+1. 안정성
+
+하나의 컴포넌트가 고장나더라도 전체 어플리케이션에 영향을 미치게 된다.
+
+2. 유저 경험
+
+에러가 발생했을 때, 유저에게 유의미한 정보를 전달 할 수 있다.
+
+3. 로그
+
+에러 정보와 함께 디버깅 정보 로그시스템에 보내서 문제를 인지하고 해결 할 수 있도록 한다.
+
+**ErrorBoundary**
+
+하위 컴포넌트에서 발생하는 JS관련 에러감지하고, fallback UI노출하거나 공통에러 로깅을 할수 있도록 도와주는 클래스 컴포넌트.
+
+에러가 발생한 특정 부분만 격리시키고 나머지 부분은 정상적으로 작동하게 할 수 있다.
+
+https://ko.react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary

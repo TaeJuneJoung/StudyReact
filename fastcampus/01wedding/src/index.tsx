@@ -6,6 +6,7 @@ import App from './App'
 import { ModalContext } from '@contexts/ModalContext'
 import reportWebVitals from './reportWebVitals'
 import FullScreenMessage from '@shared/FullScreenMessage'
+import ErrorBoundary from '@shared/ErrorBoundary'
 
 import './scss/global.scss'
 
@@ -16,9 +17,11 @@ root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <ModalContext>
-        <Suspense fallback={<FullScreenMessage type="loading" />}>
-          <App />,
-        </Suspense>
+        <ErrorBoundary fallbackUI={<FullScreenMessage type="error" />}>
+          <Suspense fallback={<FullScreenMessage type="loading" />}>
+            <App />,
+          </Suspense>
+        </ErrorBoundary>
       </ModalContext>
     </QueryClientProvider>
   </React.StrictMode>,
