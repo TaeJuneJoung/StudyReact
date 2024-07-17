@@ -160,3 +160,8 @@ root.render(
 
 components/shared/Input.tsx에서 `&[aria-invalid='true']`를 통하여 input값 검증에 따른 스타일 처리. `aria-invalid` 속성을 사용.
 
+## 카드 리스트 구현
+
+```bash
+$ yarn add react-router-dom
+```
