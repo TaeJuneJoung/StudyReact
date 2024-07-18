@@ -165,3 +165,29 @@ components/shared/Input.tsx에서 `&[aria-invalid='true']`를 통하여 input값
 ```bash
 $ yarn add react-router-dom
 ```
+
+```bash
+$ yarn add react-query
+```
+
+```bash
+$ yarn add swiper@^11
+```
+
+**컴포넌트 합성**
+
+Props Drilling을 해결하는 방안
+
+
+useQuery말고 useInfiniteQuery를 이용하면 
+
+
+```bash
+$ yarn add lodash
+$ yarn add @types/lodash
+```
+
+
+```bash
+$ yarn add react-infinite-scroll-component
+```
