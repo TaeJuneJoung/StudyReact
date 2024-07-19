@@ -179,15 +179,16 @@ $ yarn add swiper@^11
 Props Drilling을 해결하는 방안
 
 
-useQuery말고 useInfiniteQuery를 이용하면 
+useQuery말고 useInfiniteQuery를 이용하면 스크롤을 내리면 데이터를 load하는 이벤트를 손쉽게 만들 수 있다.
 
+```bash
+$ yarn add react-infinite-scroll-component
+```
 
+lodash 라이브러리의 flatten을 통해 배열안의 배열을 단일 배열로 만들 수 있다.
 ```bash
 $ yarn add lodash
 $ yarn add @types/lodash
 ```
 
 
-```bash
-$ yarn add react-infinite-scroll-component
-```
