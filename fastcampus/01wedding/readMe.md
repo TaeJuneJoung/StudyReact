@@ -407,3 +407,343 @@ https://developers.kakao.com/docs/latest/ko/message/message-template
 
 ### 참석 여부 구현
 
+#### Portals
+
+https://ko.react.dev/reference/react-dom/createPortal
+
+부모 요소에 영향을 주지 않고 다른 div에 모달을 띄우는 방안으로 사용
+
+```tsx
+import { ComponentProps } from 'react'
+
+import Modal from '@shared/Modal'
+
+type ModalProps = ComponentProps<typeof Modal>
+type ModalOptions = Omit<ModalProps, 'open'>
+
+interface ModalContextValue {
+  open: (options: ModalOptions) => void
+  close: () => void
+}
+```
+
+이러한 방식으로 유동적인 컴포넌트의 Props를 받을 수 있다.
+
+`Omit`은 typescript의 유틸리티 타입으로 특정 속성만 제거한 타입을 정의한다. (pick의 반대)
+
+
+```tsx
+// /AttendCountModal/index.tsx
+function AttendCountModal({wedding}: {wedding: Wedding}) {
+  const { open, close } = useModalContext()
+
+  const $input = useRef<HTMLInputElement>(null)
+
+  const haveSeenModal = localStorage.getItem('@have-seen-modal')
+
+  useEffect(() => {
+    if (haveSeenModal == 'true') {
+      return
+    }
+
+    open({
+      title: `현재 참석자 ${wedding.attendCount} 명`,
+      body: (
+        <div>
+          <input
+            ref={$input}
+            placeholder="참석 가능 인원을 추가해주세요"
+            style={{width: '100%'}}
+          />
+        </div>
+      ),
+      onLeftButtonClick: () => {
+        localStorage.setItem('@have-seen-modal', 'true')
+        close()
+      },
+      onRightButtonClick: () => {},
+    })
+    console.log('open')
+  }, []) // eslint-disable-line
+  return null
+}
+
+export default AttendCountModal
+```
+
+해당 부분에서 `useState`를 이용하여 입력한 숫자를 관리하게 되면 상태값 변화가 되어 리렌더링 되면서 open을 계속 호출하게 되는 문제가 생기게 된다. 그렇기에 useRef를 이용.
+
+## 프로젝트 최적화
+
+### 동영상
+
+동영상 최적화에 가장 중요한 건 용량을 줄이는 것
+
+1. 동영상 압축 https://www.media.io
+2. 동영상 길이 줄이기
+3. 적절한 동영상 포맷 사용 (mp4 -> webm)
+4. CDN 서비스 이용
+
+
+### 이미지
+
+Lighthouse를 통하여 최적화 파악
+
+**이미지 변환**
+
+https://squoosh.app/
+
+
+**미디어 라이브러리**
+
+https://console.cloudinary.com/
+
+이미지 크기를 주소를 통해서 관리 가능
+
+webp를 사용할 때 IE를 고려한다면 webp가 아닌 jpg나 png로도 지원을 해줘야 한다. 그래서 `picture`태그를 이용하여 이를 처리한다.
+
+```tsx
+<picture>
+  <source srcSet={`${src}.webp`} type="image/webp" />
+  <img src={`${src}.jpg`} alt="사진첩 이미지" />
+</picture>
+```
+
+그런데 확대해서 볼 때 작은 이미지가 적용되어 화질이 안좋은 문제가 발생하니 이를 위해서 cloudinary를 사용. Media Library에 Folders를 통해 내 이미지들 저장.
+
+⚠️update되었는지 이름이 자동으로 뒤에 값이 붙고 rename해도 url값은 기존 붙은 값을 사용한 link여야 한다.
+
+
+### 폰트
+
+- FOIT(flash of invisible text)
+
+폰트를 다운로드 하기 전에는 텍스트를 노출하지 않습니다.
+
+- FOUT(flash of unstyled text)
+
+폰트가 다운로드되기 전에는 기본 폰트를 노출합니다. 다운로드 후에 폰트를 교체합니다.
+
+> - swap(FOUT): 폰트를 다운받기 전에는 기본 폰트를 노출하고 다운로드 완료 후 폰트 교체
+> - block(FOIT): 3초 내에 폰트를 다운받지 못하면 기본 폰트 노출
+- fallback(FOIT): 0.1초 정도 block이 발생. 3초 이내 다운받지 못한다면 다운로드 여부 상관없이 기본 폰트 노출(캐시)
+- optional(FOIT): fallback과 비슷. 폰트가 다운로드 받는 시간이 너무 오래 걸리면 브라우저가 연결을 취소할 수 있다.(캐시)
+
+```scss
+@font-face {
+    font-family: 'NanumGiBbeumBarkEum';
+    src:
+        url('../assets/fonts/NanumGiBbeumBarkEum.woff2') format('woff2'),
+        url('../assets/fonts/NanumGiBbeumBarkEum.woff') format('woff'),
+        url('../assets/fonts/NanumGiBbeumBarkEum.ttf') format('ttf');
+    font-display: fallback;
+}
+```
+
+`font-display`를 이용해서 사용.
+
+#### 용량을 줄이는 방법
+
+EOT -> TTF/OTF -> WOFF -> WOFF2 순으로 용량이 작아진다.
+
+**Subset (필요한 글자들만 추려서 폰트 만들기)**
+
+https://namu.wiki/w/%EC%99%84%EC%84%B1%ED%98%95/%ED%95%9C%EA%B8%80%20%EB%AA%A9%EB%A1%9D/KS%20X%201001
+
+https://transfonter.org/
+
+영어랑 숫자, 특수문자 추가해서 간추리면 용량이 줄어든다.
+```bash
+# 추가해준 부분
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz
+0123456789`~!@#$%^&*()-_=+\|[]{};:'",.<>/?
+```
+
+**폰트 로드 속도 개선(Preload)**
+
+FOIT와 FOUT 시간을 줄이기 위해 폰트를 미리 로드
+
+https://www.npmjs.com/package/webpack-font-preload-plugin
+
+```bash
+yarn add -D webpack-font-preload-plugin
+```
+
+craco.config.js에 해당 부분 추가함.
+```js
+const CracoAlias = require('craco-alias')
+const FontPreloadPlugin = require('webpack-font-preload-plugin')
+
+module.exports = {
+	plugins: [
+		{
+			plugin: CracoAlias,
+			options: {
+				source: 'tsconfig',
+				tsConfigPath: 'tsconfig.paths.json',
+			}
+		}
+	],
+	webpack: {
+		plugins: {
+			add: [new FontPreloadPlugin()],
+		}
+	}
+}
+```
+
+이렇게 되면 적용된다.
+
+```js
+plugins: {
+  add: [new FontPreloadPlugin({
+    extensions: ['woff2'],
+  })],
+}
+```
+
+
+### 불필요한 렌더링 줄이기
+
+**React dev tools**
+
+Chrome 확장 프로그램
+
+#### Memo 사용
+
+Props가 변경되지 않는 이상 다시 렌더링하지 않는다.
+
+https://ko.react.dev/reference/react/memo
+
+props가 빈번하게 바뀌는 컴포넌트는 memo를 하면 안된다.
+
+예시를 들면, 여기에서 캘린더는 메모를 사용하는 것이 좋고, 사진첩의 경우는 memo를 사용하지 않는 것이 좋다.
+
+`export default memo(Modal)`이런식으로 memo를 사용하여 처리해줌.
+
+#### useCallback 사용
+
+함수 정의를 캐시하는 React Hook으로 리렌더링시에 새롭게 함수를 만들지 않는다.
+
+https://ko.react.dev/reference/react/useCallback
+
+```tsx
+const open = useCallback((options: ModalOptions) => {
+  setModalState({ ...options, open: true })
+}, [])
+const close = useCallback(() => {
+  setModalState(defaultValues)
+}, [])
+
+const values = useMemo(
+  () => ({
+    open,
+    close,
+  }),
+  [open, close],
+)
+```
+
+Modal의 open, close가 지속적으로 바뀌어야 할 값이 있는 것이 아니고 values로 담은 것도 변화가 있을 필요가 없으니 다음과 같이 처리.
+
+### 렌더링에 집중 할 수 있는 컴포넌트 환경
+
+비즈니스 로직에 대한 코드와 화면을 그리는 컴포넌트 코드가 역할에 맞게 명확하게 분리되어 있는 환경
+
+1. 청접장 데이터를 불러오는 부분을 커스텀훅 처리
+2. APp컴포넌트는 화면을 구성하는데 집중
+
+
+**추상화**
+
+내부의 로직과 복합성을 감추고 사용자에게 간결하고 명확한 인터페이스를 제공
+
+```tsx
+const {data, isLoading, error} = useFetchTodos();
+```
+
+
+### 선언적 코딩하기
+
+동작이 예상가능한 추상화된 코드
+
+```ts
+// 감지 이벤트를 만드는거 같아 기재함
+let options = {
+  root: document.querySelector('#scrollArea),
+  rootMargin: '0px',
+  threshold: 1.0,
+};
+
+let observer = new IntersectionObserver(callback, options);
+```
+
+**Suspense**
+
+자식 요소가 로드되기 전까지 화면에 대체 UI를 보여준다.
+
+https://ko.react.dev/reference/react/Suspense
+
+
+**React Query**
+
+서버의 상태를 관리하는 라이브러리
+
+선언적으로 상태와 에러, 로딩 관리를 할 수 있다.
+
+캐싱, 값 업데이트 등 비동기 과정을 편하게 사용할 수 있도록 도와준다.
+
+https://tanstack.com/query/latest
+
+강의에서는 v3, 현재 최신은 v5
+
+v5로 진행함.
+
+```bash
+$ yarn add @tanstack/react-query
+$ yarn add -D @tanstack/eslint-plugin-query
+```
+
+```tsx
+// index.tsx
+
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+
+const queryClient = new QueryClient()
+
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+root.render(
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ModalContext>
+        <App />,
+      </ModalContext>
+    </QueryClientProvider>
+  </React.StrictMode>,
+)
+```
+Suspense 기능을 이용하기 위해서 v5에서는 `useSuspenseQuery`를 이용하면 된다.
+
+
+### 에러 처리가 필요한 이유
+
+1. 안정성
+
+하나의 컴포넌트가 고장나더라도 전체 어플리케이션에 영향을 미치게 된다.
+
+2. 유저 경험
+
+에러가 발생했을 때, 유저에게 유의미한 정보를 전달 할 수 있다.
+
+3. 로그
+
+에러 정보와 함께 디버깅 정보 로그시스템에 보내서 문제를 인지하고 해결 할 수 있도록 한다.
+
+**ErrorBoundary**
+
+하위 컴포넌트에서 발생하는 JS관련 에러감지하고, fallback UI노출하거나 공통에러 로깅을 할수 있도록 도와주는 클래스 컴포넌트.
+
+에러가 발생한 특정 부분만 격리시키고 나머지 부분은 정상적으로 작동하게 할 수 있다.
+
+https://ko.react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary

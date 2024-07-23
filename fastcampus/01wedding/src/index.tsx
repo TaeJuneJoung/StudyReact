@@ -1,16 +1,30 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 
 import App from './App'
+import { ModalContext } from '@contexts/ModalContext'
 import reportWebVitals from './reportWebVitals'
+import FullScreenMessage from '@shared/FullScreenMessage'
+import ErrorBoundary from '@shared/ErrorBoundary'
 
 import './scss/global.scss'
 
+const queryClient = new QueryClient()
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
-  // <React.StrictMode>
-  <App />,
-  // </React.StrictMode>,
+  <React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ModalContext>
+        <ErrorBoundary fallbackUI={<FullScreenMessage type="error" />}>
+          <Suspense fallback={<FullScreenMessage type="loading" />}>
+            <App />,
+          </Suspense>
+        </ErrorBoundary>
+      </ModalContext>
+    </QueryClientProvider>
+  </React.StrictMode>,
 )
 
 // If you want to start measuring performance in your app, pass a function
