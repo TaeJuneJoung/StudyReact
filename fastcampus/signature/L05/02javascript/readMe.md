@@ -232,3 +232,217 @@ for (const key in user) {
   console.log(key, user[key])
 }
 ```
+
+## 함수
+
+### 함수 선언과 표현 그리고 호이스팅
+
+```js
+// 호이스팅
+hello1(); // 호이스팅 이뤄짐
+hello2(); // 정의하라고 에러발생됨 (함수 표현식은 호이스팅 안됨)
+
+// 함수 선언
+function hello1() {
+  console.log("Hello");
+}
+
+// 함수 표현식
+const hello2 = function () {
+  console.log("Hello");
+};
+```
+
+### 나머지 매개변수
+
+```js
+function sum(...rest) {
+  console.log(arguments); // 유사 배열
+  return rest.reduce((acc, cur) => {
+    return acc + cur;
+  }, 0);
+}
+
+console.log(sum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10));
+```
+
+`arguments`를 이용하면 유사 배열 형태로 값들을 받아올 수는 있으나, `reduce`와 같은 함수들을 사용할 수 없다.
+
+직관적이지도 않은 점도 한몫 한다.
+
+### 화살표 함수
+
+```js
+const arr1 = (a, b) => {
+  return a + b;
+};
+
+// 중괄호와 return 키워드를 생략하고 작성 가능(단, 중간 다른 로직 있으면 안됨)
+const arr2 = (a, b) => a + b;
+
+const a = () => {
+  return { a: 1 };
+};
+// 이와 같은 경우는 안됨. 중괄호 기호가 함수의 영역 중괄호인지 객체의 중괄호인지 모호하기에 문제가 생김
+const b = () => {
+  a: 1;
+};
+
+// 이런 경우 () 소괄호를 묶어줌으로서 처리해야함
+const c = () => ({ a: 1 });
+```
+
+### 즉시 실행 함수(IIFE, Immediately-Invoked Function Expression)
+
+```js
+((a, b) => {
+  console.log("Hello");
+  console.log(a, b);
+})(3, 5);
+
+// 1. (F)()
+// 2. (F())
+// 3. !F()
+// 4. +F()
+// 5. ()()
+
+// 코드 난독화. 인자와 매개변수를 다르게 해서 즉시 실행
+((a, b) => {
+  console.log(a.innerWidth);
+  console.log(b.body);
+})(window, document);
+```
+
+### 콜백(Callback)
+
+```js
+const sum = (a, b, callback) = {
+  setTimeout(() => {
+    // return a + b; // 해당 값을 어떻게 받을 것인가?
+    callback(a + b)
+  }, 1000)
+}
+
+sum(1, 2, value => {
+  console.log(value)
+})
+```
+
+위와 같은 방도를 이용한 loading 메세지 1초 보여주고 이미지 보여주는 로직
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script type="module" defer src="./main.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Loading...</h1>
+    </div>
+  </body>
+</html>
+```
+
+```js
+const loadImg = (url, callback) => {
+  const imgEl = document.createElement("img");
+  imgEl.src = url;
+  imgEl.addEventListener("load", () => {
+    setTimeout(() => {
+      callback(imgEl);
+    }, 1000);
+  });
+};
+
+const $containerEl = document.querySelector(".container");
+const url = "https://www.gstatic.com/webp/gallery/4.jpg";
+loadImg(url, (imgEl) => {
+  $containerEl.innerHTML = "";
+  $containerEl.append(imgEl);
+});
+```
+
+### 호출 스케줄링(Scheduling a function call)
+
+```js
+const timeout = setTimeout(() => {
+  console.log("Hello");
+}, 1000);
+
+clearTimeout(timeout); // setTimeout clear시킴 -> 1초뒤 콘솔에 안나옴. 이벤트에 적용하면 이벤트 적용 될 때 안되게 처리할 수 있음
+
+// setInterval도 동일함. clearInterval
+```
+
+### this
+
+- 일반 함수의 this는 호출 위치에서 정의
+- 화살표 함수의 this는 자신이 선언된 함수(렉시컬) 범위에서 정의
+
+> **렉시컬(Lexical)**
+>
+> : 함수가 동작할 수 있는 유효한 범위
+
+```js
+function user() {
+  this.firstName = "Neo";
+  this.lastName = "Anderson";
+
+  return {
+    firstName: "Heropy",
+    lastName: "Park",
+    age: 85,
+    getFullName() {
+      return `${this.firstName} ${this.lastName}`;
+    },
+  };
+}
+
+const u = user();
+console.log(u.getFullName());
+
+const lewis = {
+  firstName: "Lewis",
+  lastName: "Yang",
+};
+
+// lewis에 없는 getFullName 사용하는 방안
+console.log(u.getFullName.call(lewis));
+```
+
+함수 생성자 안에 쓰이는 함수는 메서드로서 `: function`을 생략하고도 사용할 수 있다.
+
+```js
+// 1. 일반적 방식
+getFullName: function() {};
+// 2. 메서드 문법으로 생략
+getFullName() {};
+// 3. 화살표 함수 방식
+getFullName: () => {};
+```
+
+단, 일반 함수와 화살표 함수의 `this`인식 차이로 인하여 값이 달라질 수 있다는 점 염두해야한다.
+
+```js
+const timer = {
+  title: "TIMER!",
+  timeout() {
+    console.log(this.title);
+    setTimeout(function () {
+      console.log(this.title);
+    }, 1000);
+  },
+};
+
+timer.timeout();
+
+// setTimeout callback함수로 정의된 부분에서 일반함수의 this는 호출 위치에서 정의되기에 undefined가 나오게 된다.
+
+만약 함수 내부에 또 다른 함수가 들어있는 구조라면 일반 함수보다는 화살표 함수를 쓰는 것이 훨씬 더 적합하다.
+
+setTimeout함수의 첫 번째 인수로 사용되는 callback화살표 함수는 그 내부에서 사용하는 this키워드가 선언된 함수 범위에서 정의가 된다. this키워드를 사용하는 이 부분에 callback함수를 감싸고 있는 또 다른 함수는 timeout이라는 함수가 감싸고 있다. 그래서 timeout 함수가 가지고 있는 this키워드는 결과적으로 timer라는 객체 데이터이고 거기에서의 this와 callback에서의 this는 사실상 같은 것이 된다.
+```
