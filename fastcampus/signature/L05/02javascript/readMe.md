@@ -446,3 +446,105 @@ timer.timeout();
 
 setTimeout함수의 첫 번째 인수로 사용되는 callback화살표 함수는 그 내부에서 사용하는 this키워드가 선언된 함수 범위에서 정의가 된다. this키워드를 사용하는 이 부분에 callback함수를 감싸고 있는 또 다른 함수는 timeout이라는 함수가 감싸고 있다. 그래서 timeout 함수가 가지고 있는 this키워드는 결과적으로 timer라는 객체 데이터이고 거기에서의 this와 callback에서의 this는 사실상 같은 것이 된다.
 ```
+
+## 클래스
+
+JS는 Prototype언어
+
+```js
+// 선언하지 않은 함수 사용하는 법1
+const heropy = {
+  firstName: "heropy",
+  lastName: "Park",
+  getFullName() {
+    return `${this.firstName} ${this.lastName}`;
+  },
+};
+
+const neo = {
+  firstName: "Neo",
+  lastName: "Anderson",
+};
+
+console.log(heropy.getFullName());
+console.log(heropy.getFullName.call(neo));
+
+// 선언하지 않은 함수 사용하는 법2
+function User(first, last) {
+  this.firstName = first;
+  this.lastName = last;
+}
+User.prototype.getFullName = function () {
+  // 일반함수 사용해야함. 화살표 함수 사용하면X
+  return `${this.firstName} ${this.lastName}`;
+};
+
+// 3. 클래스 문법
+class User {
+  constructor(first, last) {
+    this.firstName = first;
+    this.lastName = last;
+  }
+
+  getFullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+}
+
+const heropy = new User("Heropy", "Park");
+const neo = new User("Neo", "Anderson");
+```
+
+### Getter, Setter
+
+```js
+class User {
+  constructor(first, last) {
+    this.firstName = first;
+    this.lastName = last;
+  }
+
+  get fullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  set fullName(value) {
+    [this.firstName, this.lastName] = value.split(" ");
+  }
+}
+
+const heropy = new User("Heropy", "Park");
+console.log(heropy.fullName);
+
+heropy.fullName = "Neo Anderson";
+console.log(heropy);
+```
+
+### 정적 메서드
+
+`Array.prototype.includes()`와 `Array.isArray()`를 보면 앞에는 prototype이 있고 isArray는 prototpye없이 쓰이는데 어떠한 차이가 있는가?
+
+prototype없이 쓰이면 정적 메서드.
+
+```js
+class User {
+  constructor(first, last) {
+    this.firstName = first;
+    this.lastName = last;
+  }
+
+  getFullName() {
+    return `${this.firstName} ${this.lastName}`;
+  }
+
+  static isUser(user) {
+    return user.firstName && user.lastName ? true : false;
+  }
+}
+
+const heropy = new User("Helropy", "Park");
+
+console.log(User.isUser(heropy));
+```
+
+정적 메서드는 클래스로 바로 접근은 가능하나 인스턴스 객체에서는 접근할 수 없다.
