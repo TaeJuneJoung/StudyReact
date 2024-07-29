@@ -1247,3 +1247,289 @@ export { b } from "./b.js";
 // main.js
 export { a, b } from "./utils.js";
 ```
+
+## 비동기
+
+### 콜백 패턴과 콜백 지옥
+
+```js
+const a = (callback) => {
+  setTimeout(() => {
+    console.log(1);
+    callback();
+  }, 1000);
+};
+
+const b = (callback) => {
+  setTimeout(() => {
+    console.log(2);
+    callback();
+  }, 1000);
+};
+const c = (callback) => {
+  setTimeout(() => {
+    console.log(3);
+    callback();
+  }, 1000);
+};
+
+const d = () => console.log(4);
+
+a(() => {
+  b(() => {
+    c(() => {
+      d();
+    });
+  });
+});
+```
+
+API통신을 통해서 데이터를 순차적으로 가져오려고 할떄도 콜백 지옥에 빠질 수 있다.
+
+이러한 콜백 지옥을 해결하기 위해 프로미스를 사용할 수 있다.
+
+### 프로미스(Promise)
+
+```js
+const a = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(1);
+      resolve();
+    }, 1000);
+  });
+};
+
+const b = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(2);
+      resolve();
+    }, 1000);
+  });
+};
+
+const c = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(3);
+      resolve();
+    }, 1000);
+  });
+};
+
+const d = () => console.log(4);
+
+// 동작은 무리없이 되나 콜백 지옥하고 같인 모양
+a().then(() => {
+  b().then(() => {
+    c().then(() => {
+      d();
+    });
+  });
+});
+
+// then메서드를 통해서 체이닝 형태로 하면 된다.
+a()
+  .then(() => {
+    return b();
+  })
+  .then(() => {
+    return c();
+  })
+  .then(() => {
+    d();
+  });
+
+// 생략 버전. resolve 인자로 들어가서 함수호출을 하니 b()가 아닌 b 변수처럼 보내서 사용도 된다.
+a().then(b).then(c).then(d);
+```
+
+### async & await
+
+```js
+const a = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      console.log(1);
+      resolve();
+    }, 1000);
+  });
+};
+
+const b = () => console.log(2);
+
+const wrap = async () => {
+  await a();
+  b();
+};
+wrap();
+```
+
+```js
+const wrap = async () => {
+  await getMovies("frozen");
+  console.log("겨울왕국");
+  await getMovies("avengers");
+  console.log("어벤져스");
+  await getMovies("avatar");
+  console.log("아바타");
+};
+wrap();
+```
+
+주의할점은 await를 Promise형태를 반환하는 함수에 작성해야 한다. console.log는 Promise객체를 반환하지 않으므로 앞에 await를 작성하면 안된다.
+
+### Resolve, Reject 그리고 에러 핸들링
+
+```js
+// Promise 반환 아닌 기본 버전
+const delayAdd = (index, cb, errorCb) => {
+  setTimeout(() => {
+    if (index > 10) {
+      errorCb(`${index}는 10보다 클 수 없습니다.`);
+      return;
+    }
+    console.log(index);
+    cb(index + 1);
+  }, 1000);
+};
+
+delayAdd(
+  13,
+  (res) => console.log(res),
+  (err) => console.error(err)
+);
+
+// Promise 사용
+const delayAdd = (index) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (index > 10) {
+        reject(`${index}는 10보다 클 수 없습니다.`);
+        return;
+      }
+      console.log(index);
+      resolve(index + 1);
+    }, 1000);
+  });
+};
+
+delayAdd(13)
+  .then((res) => console.log(res))
+  .catch((err) => console.error(err))
+  .finally(() => console.log("Done!"));
+
+// async/await의 경우
+const wrap = async () => {
+  try {
+    const res = await delayAdd(13);
+    console.log(res);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    console.log("Done");
+  }
+};
+wrap();
+```
+
+```js
+const getMovies = (movieName) => {
+  return new Promise((resolve, reject) => {
+    fetch(`https://www.omdbapi.com/?apikey=${api_key}&s=${movieName}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.Response === "False") {
+          reject(json.Error);
+        }
+        resolve(json);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+let loading = true;
+
+// .then
+getMovies("avengers")
+  .then((movies) => console.log("영화 목록:", movies))
+  .catch((error) => console.log("에러 발생:", error))
+  .finally(() => (loading = false));
+
+// async / await
+const wrap = async () => {
+  try {
+    const movies = await getMovies("avengers");
+    console.log("영화 목록:", movies);
+  } catch (error) {
+    console.log("에러 발생:", error);
+  } finally {
+    loading = false;
+  }
+};
+wrap();
+```
+
+#### 반복문에서 비동기 처리
+
+```js
+const getMovies = (movieName) => {
+  return new Promise((resolve, reject) => {
+    fetch(`https://www.omdbapi.com/?apikey=${api_key}&s=${movieName}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.Response === "False") {
+          reject(json.Error);
+        }
+        resolve(json);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+
+const titles = ["frozen", "avengers", "avatar"];
+
+// forEach에서는 async/await 비동기 통신이 안된다.
+titles.forEach(async (title) => {
+  const movies = await getMovies(title);
+  console.log(title, movies);
+});
+
+// for문 사용
+const wrap = async () => {
+  for (const title of titles) {
+    const movies = await getMovies(title);
+    console.log(title, movies);
+  }
+};
+wrap();
+```
+
+TODO: 왜 forEach문에서는 문제가 생기는 거지?
+
+### fetch함수
+
+`fetch(주소, 옵션)`
+
+네트워크를 통해 리소스의 요청(Request) 및 응답(Response)을 처리할 수 있다.
+
+Promise인스턴스를 반환한다.
+
+```js
+fetch(url, {
+  method: "POST", // default: GET
+  headers: {
+    'Content-Type': 'application/json'
+  }, // 서버에 대한 요청
+  body: JSON.stringify({
+    name: 'A',
+    age: 33,
+    email: A@B.C
+  }), // 요청에 대한 데이터를 담아 전송. 문자화해서 보내줘야함
+});
+```
