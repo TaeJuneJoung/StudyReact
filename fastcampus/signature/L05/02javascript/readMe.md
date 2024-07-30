@@ -1533,3 +1533,118 @@ fetch(url, {
   }), // 요청에 대한 데이터를 담아 전송. 문자화해서 보내줘야함
 });
 ```
+
+## DOM
+
+HTML문서를 객체로 표현한 것으로, JS에서 HTML을 제어할 수 있게 해준다.
+
+### Node vs Element
+
+- 노드(Node): HTML요소, 텍스트, 주석 등 모든 것을 의미
+- 요소(Element): HTML요소를 의미
+
+`console.dir()`
+
+```js
+class N {}
+class E extends N {}
+
+console.dir(E);
+console.dir(N);
+console.dir(E.__proto__);
+
+console.dir(Element);
+console.dir(Node);
+console.dir(Element.__proto__);
+```
+
+노드가 요소보다 더 상위 개념이다.
+
+#### 검색
+
+```js
+// E.closest()
+// - 자신을 포함한 조상 요소 중 'CSS 선택자'와 일치하는 가장 가까운 요소를 반환한다.
+// - 요소를 찾지 못하면, null 반환
+
+const el = document.querySelector(".child");
+
+console.log(el.closest("div"));
+console.log(el.closest("body"));
+console.log(el.closest(".qwer"));
+
+// N.previousSibling / N.nextSibling
+// 노드의 이전 형제 형제 혹은 다음 형제 노드를 반환
+
+// E.previousElementSibling / E.nextElementSibling
+// 요소의 이전 형제 혹은 다음 형제 요소를 반환
+
+// HTMLCollection 유사 배열 -> 배열로 사용하기 위해서는 Array.from()사용 해야함
+```
+
+#### 생성, 조회, 수정
+
+- createElement 메모리에만 존재하는 새로운 HTML 요소를 생성해 반환
+- E.prepend() / E.append() : 노드를 요소의 첫 번째 혹은 마지막 자식으로 삽입
+- E.insertAdjacentElement() : 대상 요소의 지정한 위치에 새로운 요소를 삽입. `대상_요소.insertAdjacentElement(위치, 새로운_요소)`
+  - beforebegin
+  - afterbegin
+  - beforeend
+  - afterend
+- N.insertBefore() : 부모 노드의 자식인 참조 노드의 이전 형제로 노드를 삽입. `부모_노드.insertBefore(노드 ,참조_노드)`
+- N.contains() : 주어진 노드가 노드의 자신을 포함한 후손인지 확인. `노드.contains(주어진_노드)`
+- N.textContent : 노드의 모든 텍스트를 얻거나 변경
+- E.innerHTML : 요소의 모든 HTML 내용을 하나의 문자로 얻거나, 새로운 HTML을 지정
+
+- E.dataset : 요소의 각 `data-` 속성 값을 얻거나 지정
+- E.tagName : 요소의 태그 이름을 반환
+- E.id : 요소의 id 속성 값을 얻거나 지정
+- E.className : 요소의 class 속성 값을 얻거나 지정
+- E.classList : 요소의 class속성 값을 제어
+  - .add() : 새로운 값을 추가
+  - .remove() : 기존 값을 제거
+  - .toggle() : 값을 토글
+  - .contains() : 값을 확인
+- E.style : 요소의 style 속성(`인라인 스타일`)의 CSS 속성 값을 얻거나 지정
+
+```js
+const el = document.querySelector(".child");
+
+// 개별 지정
+el.style.width = "100px";
+
+// 한 번에 지정
+Object.assign(el.style, {
+  width: "100px",
+  fontSize: "20px",
+  backgroundColor: "green",
+});
+```
+
+- window.getComputedStyle() : 요소에 적용된 스타일 객체를 반환
+
+```js
+const el = document.querySelector(".child");
+const styles = window.getComputedStyle(el);
+
+console.log(styles.width);
+console.log(styles);
+```
+
+- E.getAttribute() / E.setAttribute() : 요소에서 특정 속성 값을 얻거나 지정
+
+  > HTML에서는 속성을 Attribute라고 표현하고 CSS, JS에서는 Property라고 표현
+
+- E.hasAttribute() / E.removeAttribute() : 요소에서 특정 속성을 확인하거나 제거
+
+#### 크기와 좌표
+
+- window.innerWidth / window.innerHeight : 현재 화면(Viewport)의 크기를 얻는다.
+- window.scrollX / window.scrollY : 페이지 최상단 기준, 현재 화면의 수평 혹은 수직 스크롤 위치를 얻는다.
+- window.scrollTo() / E.scrollTO() : 지정된 좌표로 대상(화면, 스크롤 요소)을 스크롤. `대상.ScrollTo(X좌표, Y좌표)`, `대상.scrollTo({top: Y, left: X, behavior: 'smooth'})`
+
+- E.clientWidth / E.clientHeight : 테두리 선(스크롤바도)을 제외한 요소의 크기를 얻는다.
+- E.offsetWidth / E.offsetHeight : 테두리 선을 포함한(스크롤바 제외) 요소의 크기를 얻는다.
+- E.scrollLeft / E.scrollTop : 스크롤 요소의 최상단 기준, 현재 스크롤 요소의 수평 혹은 수직 스크롤 위치를 얻는다.
+- E.offsetLeft / E.offsetTop : 페이지의 최상단 기준, 요소의 위치를 얻는다.
+- E.getBoundingClientRect() : 테두리 선을 포함한 요소의 크기와 화면에서의 `상대 위치 정보`를 얻는다.
