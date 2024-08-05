@@ -1648,3 +1648,292 @@ console.log(styles);
 - E.scrollLeft / E.scrollTop : 스크롤 요소의 최상단 기준, 현재 스크롤 요소의 수평 혹은 수직 스크롤 위치를 얻는다.
 - E.offsetLeft / E.offsetTop : 페이지의 최상단 기준, 요소의 위치를 얻는다.
 - E.getBoundingClientRect() : 테두리 선을 포함한 요소의 크기와 화면에서의 `상대 위치 정보`를 얻는다.
+
+## Events
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event</title>
+    <style>
+      .parent {
+        width: 300px;
+        height: 200px;
+        padding: 20px;
+        border: 10px solid;
+        background-color: tomato;
+        overflow: auto;
+      }
+      .child {
+        width: 200px;
+        height: 1000px;
+        border: 10px solid;
+        background-color: orange;
+        font-size: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="parent">
+      <div class="child">
+        <a href="https://google.com" target="_blank">Google</a>
+      </div>
+    </div>
+
+    <script>
+      const parentEl = document.querySelector(".parent");
+      const childEl = document.querySelector(".child");
+
+      parentEl.addEventListener("click", () => {
+        console.log("parent");
+      });
+      childEl.addEventListener("click", () => {
+        console.log("child");
+      });
+    </script>
+  </body>
+</html>
+```
+
+자식 요소를 클릭하더라도 부모 요소에 이벤트가 적용된다. 이러한 현상은 `이벤트 전파(버블)`라고 하는데 이를 해결하기 위해서는 `event.stopPropagation()` 추가해주면 된다.
+
+`capture 옵션` 상위 요소의 이벤트가 먼저 동작하게 만드는 이벤트의 캡처링
+
+```js
+const parentEl = document.querySelector(".parent");
+const childEl = document.querySelector(".child");
+const anchorEl = document.querySelector("a");
+
+window.addEventListener(
+  "click",
+  () => {
+    console.log("window");
+  },
+  { capture: true }
+);
+document.body.addEventListener(
+  "click",
+  () => {
+    console.log("body");
+  },
+  { capture: true }
+);
+parentEl.addEventListener(
+  "click",
+  () => {
+    console.log("parent");
+  },
+  { capture: true }
+);
+childEl.addEventListener("click", () => {
+  console.log("child");
+});
+anchorEl.addEventListener("click", () => {
+  console.log("anchor");
+});
+```
+
+클릭을 하게 되면 겹치는 요소에서 캡쳐가 true인 위에서부터 먼저 이벤트가 발생하게 된다. 원래는 이벤트 전파이기에 클릭이 된 것부터 전파형태
+
+캡처 true로 하여도 `event.stopPropagation()`을 사용하면 적용되지 않는다.
+
+- addEventListener()
+  : 대상에 이벤트 청취(Listener)를 등록. 대상에 지정한 이벤트가 발생했을 때 지정한 함수(Handler)가 호출된다.
+
+- removeEventListener()
+  : 대상에 등록했던 이벤트 청취을 제거. 메모리 관리를 위해 등록한 이벤트를 제거하는 과정이 필요할 수 있다.
+
+```js
+const parentEl = document.querySelector(".parent");
+const childEl = document.querySelector(".child");
+
+const handler = () => {
+  console.log("parent");
+};
+
+parentEl.addEventListener("click", handler);
+childEl.addEventListener("click", () => {
+  parentEl.removeEventListener("click", handler);
+});
+```
+
+이벤트를 제거할 때는 함수명을 통해서 callback함수가 이루어져야 한다. 익명함수로 하게 되면 삭제하기 어렵다.
+
+`capture`옵션을 같이 추가하였다면 제거할 때도 동일하게 추가해줘야 한다. 옵션 추가한거와 동일하게 제거할 때도 옵션도 작성해야 한다.
+
+```js
+const parentEl = document.querySelector(".parent");
+const childEl = document.querySelector(".child");
+
+// 마우스 휠의 스크롤 동작 방지
+parentEl.addEventListener("wheel", (event) => {
+  event.preventDefault(); // 이벤트 기본 동작 방지해서 사용하지 않겠다.
+  console.log("wheel");
+});
+
+childEl.addEventListener("click", () => {
+  console.log("child");
+});
+
+// a 태그에서 페이지 이동 방지
+const anchorEl = document.querySelector("a");
+anchorEl.addEventListener("click", (event) => {
+  event.preventDefault();
+  console.log("A Click");
+});
+```
+
+### 이벤트 옵션
+
+- once: 한 번만 실행 `{once: true}`
+- passive: 요소의 기본 동작과 핸들러의 실행을 분리 `{passive: true}`
+
+```js
+const parentEl = document.querySelector(".parent");
+parentEl.addEventListener(
+  "wheel",
+  (event) => {
+    for (let i = 0; i < 100000; i++) {
+      console.log(i);
+    }
+  },
+  { passive: true }
+);
+```
+
+분리하여 실행하기에 스크롤이 원활하게 동작을 하게 됨.
+
+### 이벤트 위임(Delegation)
+
+: 비슷한 패턴의 여러 요소에서 이벤트를 핸들링해야 하는 경우, 단일 조상 요소에서 제어하는 이벤트 위임 패턴을 사용할 수 있다.
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event</title>
+  </head>
+  <body>
+    <div class="parent">
+      <div class="child">1</div>
+      <div class="child">2</div>
+      <div class="child">3</div>
+      <div class="child">4</div>
+    </div>
+
+    <script>
+      const parentEl = document.querySelector(".parent");
+      const childEls = document.querySelectorAll(".child");
+
+      // 모든 대상 요소에 이벤트 등록
+      // childEls.forEach((el) => {
+      //   el.addEventListener("click", (event) => {
+      //     console.log(event.target.textContent);
+      //   });
+      // });
+
+      // 조상 요소에 이벤트 위임!
+      parentEl.addEventListener("click", (event) => {
+        const childEl = event.target.closest(".child");
+        if (childEl) {
+          console.log(childEl.textContent);
+        }
+      });
+    </script>
+  </body>
+</html>
+```
+
+`closest`메서드는 대상 요소의 선택자와 일치하는 가장 가까운 조상 요소를 찾는데 대상 요소를 포함하여 찾음.
+
+### 마우스와 포인터 이벤트
+
+- click: 클릭했을 때
+- dblclick: 더블 클릭했을 때
+- mousedown: 버튼을 누를 때
+- mouseup: 버튼을 뗄 때
+- mouseenter: 포인터가 요소 위로 들어갈 때
+- mouseleave: 포인터가 요소 밖으로 나갈 때
+- mousemove: 포인터가 움직일 때
+- contextmenu: 우클릭했을 때
+- wheel: 휠 버튼이 회전할 때
+
+### 키보드 이벤트
+
+- keydown: 키를 누를 때
+- keyup: 키를 뗄 때
+
+한국어, 중국어, 일본어 -> cjk문자라고 포현하는데 브라우저에서 처리할 때 한단계 더 필요하기에 2번 처리된다.
+`event.isComposing`은 처리 중이라는 뜻이기에 해당 값이 false일 때만 처리되게 로직을 구현하면 된다.
+
+⭐한글과 영어를 동시에 처리 가능하게 해야할 때는 다음과 같은 로직이 필요하다.
+
+```js
+const inputEl = document.querySelector("input");
+
+inputEl.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.isComposing) {
+    console.log(event.target.value);
+  }
+});
+```
+
+### 포커스와 폼 이벤트
+
+- focus: 요소가 포커스를 얻었을 때
+- blur: 요소가 포커스를 잃었을 때
+- input: 값이 변경되었을 때
+- change: 상태가 변경되었을 때
+- submit: 제출 버튼을 선택했을 때
+- reset: 리셋 버튼을 선택했을 때
+
+### 커스텀 이벤트와 디스패치
+
+#### dispatch
+
+```js
+const child1 = document.querySelector(".child:nth-child(1)");
+const child2 = document.querySelector(".child:nth-child(2)");
+
+child1.addEventListener("click", (event) => {
+  // 강제로 이벤트 발생!
+  child2.dispatchEvent(new Event("click"));
+  child2.dispatchEvent(new Event("wheel"));
+  child2.dispatchEvent(new Event("keydown"));
+});
+
+child2.addEventListener("click", (event) => {
+  console.log("Child2 Click");
+});
+child2.addEventListener("wheel", (event) => {
+  console.log("Child2 Wheel");
+});
+child2.addEventListener("keydown", (event) => {
+  console.log("Child2 Keydown");
+});
+```
+
+#### custom event
+
+```js
+const child1 = document.querySelector(".child:nth-child(1)");
+const child2 = document.querySelector(".child:nth-child(2)");
+
+child1.addEventListener("hello-world", (event) => {
+  console.log("Custom Event");
+  console.log(event.detail);
+});
+
+child2.addEventListener("click", () => {
+  child1.dispatchEvent(new CustomEvent("hello-world"), {
+    detail: 123,
+  });
+});
+```
+
+데이터를 보내고 싶다면 `new Event`가 아닌 `new CustomEvent`를 통해서 이벤트 객체를 만들면 된다.
