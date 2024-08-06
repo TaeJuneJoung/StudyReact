@@ -2194,3 +2194,5 @@ inputEl.addEventListener("keydown", (event) => {
 `popstate` 이벤트는 사용자가 히스토리를 만들때 마다 발생하는 이벤트
 
 페이지를 이동할 때마다 popstate이벤트가 발생하게 되면서 render를 통해서 그에 맞는 화면으로 변경해준다.
+
+`history.scrollRestoration`이 auto로 되어 있는데 manual (수동)으로 변경해주면 스크롤 위치가 중간에 있고 새로고침을 하게 되면 상단으로 올라가게 된다.
