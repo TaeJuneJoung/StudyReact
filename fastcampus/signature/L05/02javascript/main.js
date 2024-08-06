@@ -1,60 +1,44 @@
-class Vehicle {
-  constructor(acceleration = 1) {
-    this.speed = 0;
-    this.aceeleration = acceleration;
-  }
+const page1 = /* html */ `
+  <section class="page1">
+    <h1>Page 1<h1>
+  </section>`;
+const page2 = /* html */ `
+  <section class="page2">
+    <h1>Page 2<h1>
+  </section>`;
+const page3 = /* html */ `
+  <section class="page3">
+    <h1>Page 3<h1>
+  </section>`;
+const pageNotFound = /* html */ `
+  <section>
+    <h1>404 Page Not Found!<h1>
+  </section>`;
 
-  accelerate() {
-    this.speed += this.acceleration;
-  }
-  decelerate() {
-    if (this.speed <= 0) {
-      console.log("STOP");
-      return;
-    }
-    this.speed -= this.acceleration;
-  }
-}
+const pages = [
+  { path: "#/page1", template: page1 },
+  { path: "#/page2", template: page2 },
+  { path: "#/page3", template: page3 },
+];
 
-class Bicycle extends Vehicle {
-  constructor(price = 100, acceleration) {
-    super(acceleration);
-    this.price = price;
-    this.wheel = 2;
+const appEl = document.querySelector("#app");
+
+const render = () => {
+  const page = pages.find((page) => page.path === location.hash);
+  appEl.innerHTML = page ? page.template : pageNotFound;
+};
+
+window.addEventListener("popstate", render);
+render();
+
+const pagePush = (num) => {
+  history.pushState(`전달할 데이터 - ${num}`, null, `#/page${num}`);
+  render();
+};
+
+const inputEl = document.querySelector("nav input");
+inputEl.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    pagePush(event.target.value);
   }
-}
-
-const bicycle = new Bicycle(300);
-bicycle.accelerate();
-bicycle.accelerate();
-console.log(bicycle);
-console.log(bicycle instanceof Bicycle);
-console.log(bicycle instanceof Vehicle);
-
-class Car extends Bicycle {
-  constructor(license, price, acceleration) {
-    super(price, acceleration);
-    this.license = license;
-    this.wheel = 4;
-  }
-
-  // Overriding
-  accelerate() {
-    if (!this.license) {
-      console.error("무면허!");
-      return;
-    }
-    this.speed += this.acceleration;
-    console.log("가속:", this.speed);
-  }
-}
-
-const car = new Car();
-
-class Boat extends Vehicle {
-  constructor(price, acceleration) {
-    super(acceleration);
-    this.price = price;
-    this.motor = 1;
-  }
-}
+});

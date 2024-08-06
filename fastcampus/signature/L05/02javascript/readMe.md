@@ -1937,3 +1937,260 @@ child2.addEventListener("click", () => {
 ```
 
 데이터를 보내고 싶다면 `new Event`가 아닌 `new CustomEvent`를 통해서 이벤트 객체를 만들면 된다.
+
+## 기타 Web APIs
+
+### console
+
+- log: 일반 메시지
+- warn: 경고 메시지
+- error: 에러 메시지
+- dir: 속성을 볼 수 있는 객체를 출력
+
+- count('이름'): 호출 누적 횟수 출력
+- countReset('이름'): 호출 횟수 초기화
+
+이름 없이 호출하면 default로 카운팅 됨
+
+- time('이름'): 타이머가 시작
+- timeEnd('이름'): 종료까지의 시간(ms) 출력
+
+- trace(): 메소드 호출 스택(Call Stack)을 추적해 출력
+
+- clear(): 콘솔에 기록된 메시지를 모두 삭제
+
+- 서식 문자 치환
+  - %s: 문자로 적용
+  - %o: 객체로 적용
+  - %c: css를 적용
+
+### Cookie, Storage
+
+#### Cookie(쿠키)
+
+도메인 단위로 저장
+
+표준안 기준, 사이트당 최대 20개 및 4KB로 제한
+
+영구 저장 불가능
+
+- domain: 유효 도메인 설정 (설정한 도메인과 다르면 설정되지 않음)
+- path: 유효 경로 설정
+  path과 `path=/abc`라고 한다면 abc경로에서만 유효하다. `/`일 경우에는 하위 경로에 다 유효
+- expires: 만료 날짜(UTC Date) 설정
+- max-age: 만료 타이머(s) 설정
+  expires나 max-age을 사용하지 않고 만료 시간을 설정하지 않으면 `세션`이라고 나오게 되는데 이는 닫히게 될 때까지 유지된다는 뜻이다.
+
+```js
+document.cookie = `a=1; domain=localhost; path=/abc; max-age=${
+  60 * 60 * 24 * 3
+}`;
+document.cookie = `b=2; expires=${new Date(2024, 8, 6).toUTCString()}`;
+
+console.log(document.cookie);
+
+function getCookie(name) {
+  const cookie = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.split("=")[0] === name);
+  return cookie ? cookie.split("=")[1] : null;
+}
+
+console.log(getCookie("a")); // 1
+```
+
+#### Storage(스토리지)
+
+도메인 단위로 저장
+
+5MB 제한
+
+세션 혹은 영구 저장 가능
+
+- sessionStorage: 브라우저 세션이 유지되는 동안에만 데이터 저장
+- localStorage: 따로 제거하지 않으면 영구적으로 데이터 저장
+
+- .getItem(): 데이터 조회
+- .setItem(): 데이터 추가
+- .removeItem(): 데이터 제거
+- .clear(): 스토리지 초기화
+
+```js
+localStorage.setItem("a", "Hello world!");
+localStorage.setItem("b", { x: 1, y: 2 });
+localStorage.setItem("c", 123);
+
+console.log(localStorage.getItem("a")); // Hello world
+console.log(localStorage.getItem("b")); // [object Object]
+console.log(localStorage.getItem("c")); // 123 (문자)
+
+localStorage.setItem("b", JSON.stringify({ x: 1, y: 2 })); // JSON객체로 저장됨
+
+console.log(localStorage.getItem("b")); // {"x":1,"y":2}
+console.log(JSON.parse(localStorage.getItem("b"))); // {x: 1, y: 2}
+
+// c의 123도 숫자 데이터로 받아야하는데 문자로 나오기에
+localStorage.setItem("c", JSON.stringify(123));
+console.log(JSON.parse(localStorage.getItem("c"))); // 123 (숫자)
+
+// a도 동일하게 문자 형태로 되게 하려면 위와 같이 하면 된다.
+```
+
+### Location
+
+현재 페이지 정보를 반환하거나 제어
+
+- .href: 전체 URL 주소
+- .protocol:프로토콜
+- .hostname: 도메인 이름
+- .pathname: 도메인 이후 경로
+- .host: 포트 번호를 포함한 도메인 이름
+- .port: 포트 번호
+- .hash: 해시 정보(페이지의 ID)
+  URL주소/#hello 여기에서 `#hello` 이게 해시 정보. id(#id명)로 이동하게 할 때 생겨남
+
+- .assign(주소): 해당 '주소'로 페이지 이동
+  `location.assign('/xyz')`를 하게 되면 `현재 URL/xyz`로 이동. 현재 페이지와 같아도 새로고침 하면서 이동
+- .replace(주소): 해당 '주소'로 페이지 이동, 현재 페이지 히스토리를 제거
+  assign과 같은데 `뒤로가기, 앞으로가기`갈 수 있는 히스토리를 제거한다는 것
+- .reload(강력): 페이지 새로고침, 'true' 인수는 '강력' 새로고침
+  `location.reload(true) 강력 새로고침
+
+```js
+console.log(location);
+```
+
+### History
+
+브라우저 히스토리(세션 기록) 정보를 반환하거나 제어
+
+- .length: 등록된 히스토리 개수
+- .scrollRestoration: 히스토리 탐색시 스크롤 위치 복원 여부 확인 및 지정
+- .state: 현재 히스토리에 등록된 데이터(상태)
+
+- .back(): 뒤로 가기
+- .forward(): 앞으로 가기
+- .go(위치): 현재 페이지 기준 특정 히스토리 '위치'로 이동
+
+- .pushState(상태, 제목, 주소): 히스토리에 상태 및 주소를 추가
+  새로고침을 하지 않고 히스토리가 추가됨. 페이지가 넘어가지도 않음. length는 추가됨.
+- .replaceState(상태, 제목, 주소): 현재 히스토리의 상태 및 주소를 교체
+  length는 추가되지 않는다.
+- 모든 브라우저(Safari 제외)는 '제목' 옵션을 무시한다.
+
+console.log(history)
+
+#### SPA 기능 만들어보기
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPA</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      nav {
+        background-color: white;
+        padding: 10px;
+        border: 4px solid;
+        position: fixed;
+        bottom: 0;
+        right: 0;
+      }
+      nav input {
+        width: 50px;
+      }
+      section {
+        height: 100vh;
+        border: 10px solid;
+        box-sizing: border-box;
+      }
+      section.page1 {
+        color: tomato;
+      }
+      section.page2 {
+        color: orange;
+      }
+      section.page3 {
+        color: green;
+      }
+    </style>
+    <script type="module" defer src="./main.js"></script>
+  </head>
+  <body>
+    <nav>
+      <a href="#/page1">p1</a>
+      <a href="#/page2">p2</a>
+      <a href="#/page3">p3</a>
+      <input type="text" />
+    </nav>
+    <div id="app">
+      <section id="/page1" class="page1">
+        <h1>Page 1</h1>
+      </section>
+      <section id="/page2" class="page2">
+        <h1>Page 2</h1>
+      </section>
+      <section id="/page3" class="page3">
+        <h1>Page 3</h1>
+      </section>
+    </div>
+  </body>
+</html>
+```
+
+````js
+//main.js
+const page1 = /* html */ `
+  <section class="page1">
+    <h1>Page 1<h1>
+  </section>`;
+const page2 = /* html */ `
+  <section class="page2">
+    <h1>Page 2<h1>
+  </section>`;
+const page3 = /* html */ `
+  <section class="page3">
+    <h1>Page 3<h1>
+  </section>`;
+const pageNotFound = /* html */ `
+  <section>
+    <h1>404 Page Not Found!<h1>
+  </section>`;
+
+const pages = [
+  { path: "#/page1", template: page1 },
+  { path: "#/page2", template: page2 },
+  { path: "#/page3", template: page3 },
+];
+
+const appEl = document.querySelector("#app");
+
+const render = () => {
+  const page = pages.find((page) => page.path === location.hash);
+  appEl.innerHTML = page ? page.template : pageNotFound;
+};
+
+window.addEventListener("popstate", render);
+render();
+
+const pagePush = (num) => {
+  history.pushState(`전달할 데이터 - ${num}`, null, `#/page${num}`);
+  render();
+};
+
+const inputEl = document.querySelector("nav input");
+inputEl.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    pagePush(event.target.value);
+  }
+});```
+````
+
+`popstate` 이벤트는 사용자가 히스토리를 만들때 마다 발생하는 이벤트
+
+페이지를 이동할 때마다 popstate이벤트가 발생하게 되면서 render를 통해서 그에 맞는 화면으로 변경해준다.
