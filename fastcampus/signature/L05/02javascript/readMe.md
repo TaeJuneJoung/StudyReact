@@ -2196,3 +2196,321 @@ inputEl.addEventListener("keydown", (event) => {
 페이지를 이동할 때마다 popstate이벤트가 발생하게 되면서 render를 통해서 그에 맞는 화면으로 변경해준다.
 
 `history.scrollRestoration`이 auto로 되어 있는데 manual (수동)으로 변경해주면 스크롤 위치가 중간에 있고 새로고침을 하게 되면 상단으로 올라가게 된다.
+
+## 심화 학습
+
+### Symbol과 BigInt
+
+#### Symbol
+
+변경이 불가한 데이터로, 유일한 식별자를 만들어 데이터를 보호하는 용도로 사용할 수 있다.
+
+```js
+const sKey = Symbol("Hello!");
+const user = {
+  key: "일반 정보!",
+  [sKey]: "민감한 정보!",
+};
+
+console.log(user.key); // 일반 정보!
+console.log(user[sKey]); // 민감한 정보!
+console.log(user[Symbol("Hello!")]); // undefined  => 형태만 같지 완전 다른 값
+```
+
+#### BigInt
+
+BigInt는 길이 제한이 없는 정수(integer)
+
+숫자(number) 데이터가 안정적으로 표시할 수 있는 최대치(2^53-1)보다 큰 정수를 표현할 수 있다.
+
+정수 뒤에 n을 붙이거나 `BigInt()`를 호출해 생성
+
+### 불변성과 가변성
+
+- 불변성(Immutability)은 생성된 데이터가 메모리에서 변경되지 않음
+- 가변성(Mutability)은 생성된 데이터가 메모리에서 변경될 수 있음
+
+// JS 원시형은 불변성을, 참조형은 가변성
+
+```js
+// 원시형
+let a = 1;
+let b = a;
+
+b = 2;
+
+console.log(a, b);
+
+// 참조형
+let c = { x: 1 };
+let d = c;
+
+d.x = 3;
+d.y = 7;
+
+console.log(c, d);
+
+let x = { q: 1 };
+let y = { q: 1 };
+
+console.log(x == y); // false
+console.log(x === y); // false
+```
+
+### 얕은 복사 & 깊은 복사
+
+#### 얕은 복사(Shallow Copy)
+
+참조형의 1차원 데이터만 복사
+
+```js
+const a = { x: 1 };
+const b = Object.assign({}, a);
+
+b.x = 2;
+
+console.log(a); // {x: 1}
+console.log(b); // {x: 2}
+
+// 전개 연산자
+const a = { x: 1 };
+const b = { ...a };
+
+b.x = 2;
+
+console.log(a); // {x: 1}
+console.log(b); // {x: 2}
+
+// 2차원 객체
+const a = { x: { y: 1 } };
+const b = { ...a };
+
+b.x.y = 2;
+
+console.log(a); // {x: {y: 2}}
+console.log(b); // {x: {y: 2}}
+
+// 배열
+const a = [1, 2, 3];
+const b = a.concat([]);
+
+b[0] = 4;
+
+console.log(a, b); // [1, 2, 3] [4, 2, 3]
+
+// 배열 - 전개 연산자
+const a = [1, 2, 3];
+const b = [...a];
+
+b[0] = 4;
+
+console.log(a, b); // [1, 2, 3] [4, 2, 3]
+```
+
+#### 깊은 복사(Deep Copy)
+
+참조형의 모든 차원 데이터를 복사
+
+```bash
+$ npm install lodash
+$ npm run dev
+```
+
+```js
+import cloneDeep from 'lodash/cloneDeep
+
+const a = { x: { y: 1 } };
+const b = cloneDeep(a);
+
+b.x.y = 2;
+
+console.log(a); // {x: {y: 1}}
+console.log(b); // {x: {y: 2}}
+
+// 배열
+const a = [[1,2], [3]]
+const b = cloneDeep(a)
+
+b[0][0] = 4
+
+console.log(a) // [[1,2], [3]]
+console.log(b) // [[4,2], [3]]
+```
+
+### 가비지 컬렉션(GC, Garbage Collection, 쓰레기 수집)
+
+자바스크립트의 메모리 관리 방법으로 자바스크립트 엔진이 자동으로, 데이터가 할당된 메모리에서 더 이상 사용되지 않는 데이터를 해제하는 것
+
+가비지 컬렉션은 개발자가 직접 강제 실행하거나 관리할 수 없다.
+
+### 클로저(Closure)
+
+함수가 선언될 때의 유효범위(렉시컬 범위)를 기억하고 있다가, 함수가 외부에서 호출될 때 그 유효범위의 특정 변수를 참조할 수 있는 개념
+
+```js
+function createCount() {
+  let num = 0;
+  return function () {
+    return (num += 1);
+  };
+}
+
+const count1 = createCount();
+
+console.log(count1()); // 1
+console.log(count1()); // 2
+console.log(count1()); // 3
+
+const count2 = createCount();
+
+console.log(count2); // 1
+console.log(count2); // 2
+```
+
+```html
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Closure</title>
+    <script type="module" defer src="./main.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Hello World H1</h1>
+      <h2>Hello World H2</h2>
+    </div>
+  </body>
+</html>
+```
+
+```js
+const h1El = document.querySelector("h1");
+const h2El = document.querySelector("h2");
+
+/*
+// 별도의 상태 관리 필요
+let h1IsRed = false;
+let h2IsRed = false;
+
+h1El.addEventListener("click", (event) => {
+  h1IsRed = !h1IsRed;
+  h1El.style.color = h1IsRed ? "red" : "black";
+});
+
+h2El.addEventListener("click", (event) => {
+  h2IsRed = !h2IsRed;
+  h2El.style.color = h2IsRed ? "red" : "black";
+});
+*/
+
+// 하나의 함수로 처리
+const createToggleHandler = () => {
+  let isGreen = false;
+  return (event) => {
+    isGreen = !isGreen;
+    event.target.style.color = isGreen ? "green" : "black";
+  };
+};
+
+h1El.addEventListener("click", createToggleHandler());
+h2El.addEventListener("click", createToggleHandler());
+// 함수를 호출했는데 함수가 호출하면 return키워드로 반환되는 데이터가 남는다.
+/* 반환되는 데이터
+(event) => {
+  isGreen = !isGreen;
+  event.target.style.color = isGreen ? "green" : "black";
+};
+*/
+```
+
+### 메모리 누수(Memory Leak)
+
+더 이상 필요하지 않은 데이터가 해제되지 못하고 메모리를 계속 차지되는 현상
+
+- 불필요한 전역 변수 사용
+  `window.hello` 이런 식의 불필요한 전역 변수 사용X
+
+- 분리된 노드 참조
+
+```html
+<button>Remove</button>
+<div class="parent">
+  <div class="child">1</div>
+  <div class="child">2</div>
+</div>
+```
+
+```js
+const btn = document.querySelector("button");
+const parent = document.querySelector(".parent"); // 해당 변수로 인하여 메모리에 저장되어 있기에 메모리 누수
+
+btn.addEventListener("click", () => {
+  console.log(parent); // 제거한 이후에도 클릭이 이뤄지면 계속 나오는 것을 확인할 수 있다.
+  parent.remove(); // 제거
+});
+
+// 해결 방안
+const btn = document.querySelector("button");
+
+btn.addEventListener("click", () => {
+  const parent = document.querySelector(".parent");
+  console.log(parent); // 제거한 이후에는 null
+  parent && parent.remove(); // 제거
+});
+```
+
+- 해제하지 않은 타이머
+
+```js
+let time = 0;
+setInterval(() => {
+  time += 1;
+}, 100);
+
+setTimeout(() => {
+  console.log(time);
+}, 1000);
+
+// 해결 방안
+let time = 0;
+const intervalId = setInterval(() => {
+  time += 1;
+}, 100);
+
+setTimeout(() => {
+  console.log(time);
+  clearInterval(intervalId);
+}, 1000);
+```
+
+- 잘못된 클로저 사용
+
+```js
+const getFn = () => {
+  let a = 0;
+  return (name) => {
+    a += 1; //// a 변수를 사용하지 않는데 사용되고 있기에 메모리가 낭비되고 있다.
+    console.log(a);
+    return `Hello ${name}~`;
+  };
+};
+
+const fn = getFn();
+console.log(fn("Neo"));
+console.log(fn("June"));
+console.log(fn("Good"));
+```
+
+### 콜 스택, 테스크 큐, 이벤트 루프
+
+JS call stack
+
+![JS Call Stack](../../_assets/js_call_stack01.jpeg)
+
+- 코딩애플
+  https://youtu.be/v67LloZ1ieI?si=DOgQvTHrJZxXP4YK
+
+- 가장 쉬운 웹개발 with Boaz
+  https://youtu.be/zi-IG6VHBh8?si=NftHJUN1ggtnnGj9

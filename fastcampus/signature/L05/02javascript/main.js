@@ -1,44 +1,37 @@
-const page1 = /* html */ `
-  <section class="page1">
-    <h1>Page 1<h1>
-  </section>`;
-const page2 = /* html */ `
-  <section class="page2">
-    <h1>Page 2<h1>
-  </section>`;
-const page3 = /* html */ `
-  <section class="page3">
-    <h1>Page 3<h1>
-  </section>`;
-const pageNotFound = /* html */ `
-  <section>
-    <h1>404 Page Not Found!<h1>
-  </section>`;
+const h1El = document.querySelector("h1");
+const h2El = document.querySelector("h2");
 
-const pages = [
-  { path: "#/page1", template: page1 },
-  { path: "#/page2", template: page2 },
-  { path: "#/page3", template: page3 },
-];
+/*
+// 별도의 상태 관리 필요
+let h1IsRed = false;
+let h2IsRed = false;
 
-const appEl = document.querySelector("#app");
-
-const render = () => {
-  const page = pages.find((page) => page.path === location.hash);
-  appEl.innerHTML = page ? page.template : pageNotFound;
-};
-
-window.addEventListener("popstate", render);
-render();
-
-const pagePush = (num) => {
-  history.pushState(`전달할 데이터 - ${num}`, null, `#/page${num}`);
-  render();
-};
-
-const inputEl = document.querySelector("nav input");
-inputEl.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") {
-    pagePush(event.target.value);
-  }
+h1El.addEventListener("click", (event) => {
+  h1IsRed = !h1IsRed;
+  h1El.style.color = h1IsRed ? "red" : "black";
 });
+
+h2El.addEventListener("click", (event) => {
+  h2IsRed = !h2IsRed;
+  h2El.style.color = h2IsRed ? "red" : "black";
+});
+*/
+
+// 하나의 함수로 처리
+const createToggleHandler = () => {
+  let isGreen = false;
+  return (event) => {
+    isGreen = !isGreen;
+    event.target.style.color = isGreen ? "green" : "black";
+  };
+};
+
+h1El.addEventListener("click", createToggleHandler());
+h2El.addEventListener("click", createToggleHandler());
+// 함수를 호출했는데 함수가 호출하면 return키워드로 반환되는 데이터가 남는다.
+/* 반환되는 데이터
+(event) => {
+  isGreen = !isGreen;
+  event.target.style.color = isGreen ? "green" : "black";
+};
+*/
