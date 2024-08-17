@@ -267,3 +267,136 @@ function add(val: string | number) {
 add(3.141592);
 add("hello world");
 ```
+
+## 인터페이스(Interface)
+
+- 선택적 속성 - ?
+- 읽기전용 속성 - readonly
+
+```ts
+interface User {
+  name: string;
+  readonly age: number;
+  isValid?: boolean;
+}
+
+const personA: User = {
+  name: "A",
+  age: 33,
+  isValid: true,
+};
+personA.isValid = false;
+personA.age = 22; // readonly라 변경 못함
+
+const personB: User = {
+  name: "B",
+  age: 11,
+};
+```
+
+### 함수 타입 - 호출 시그니처(Call Signature)
+
+```ts
+interface GetName {
+  (message: string): string;
+}
+
+interface User {
+  name: string;
+  age: number;
+  getName: GetName;
+}
+
+const personA: User = {
+  name: "A",
+  age: 33,
+  getName(message: string) {
+    console.log(message);
+    return this.name;
+  },
+};
+
+personA.getName("Hello");
+```
+
+### 인덱스 가능 타입 - 인덱스 시그니처(Index Signature)
+
+```ts
+// 배열
+interface Fruits {
+  [item: number]: string;
+}
+const fruits: Fruits = ["Apple", "Banana", "Cherry"];
+console.log(Fruits[1]);
+
+// 객체
+interface User {
+  [key: string]: unknown;
+  name: string;
+  age: number;
+}
+
+const personA: User = {
+  name: "A",
+  age: 33,
+};
+personA["isValid"] = true;
+personA["emails"] = ["A@B.com"];
+console.log(personA);
+
+// ⭐인덱스 가능 타입
+interface Payload {
+  [key: string]: unknown;
+}
+function logValues(payload: Payload) {
+  for (const key in payload) {
+    console.log(payload[key]);
+  }
+}
+
+interface User {
+  [key: string]: unknown; // 해당 부분을 작성하지 않으면 에러가 발생
+  // 인덱스 가능 타입으로 해줘야 payload가 받아서 쓸수 있는 형태
+  name: string;
+  age: number;
+  isValid: boolean;
+}
+
+const personA: User = {
+  name: "A",
+  age: 33,
+  isValid: true,
+};
+
+logValues(personA);
+```
+
+### 확장(상속)
+
+```ts
+interface UserA {
+  name: string;
+  age: number;
+}
+
+interface UserB extends UserA {
+  isValid: boolean;
+}
+
+const personA: UserB = {
+  name: "A",
+  age: 33,
+  isValid: true,
+};
+
+// 인터페이스명 동일시 확장의 역할과 같음 (+역할)
+interface FullName {
+  firstName: string;
+  lastName: string;
+}
+
+interface FullName {
+  middleName: string;
+  lastName: boolean; // 에러 발생 -> 기존 위에 동일한 명의 인터페이스에 영향을 받음 -> string으로 같으면 문제 없어짐
+}
+```
