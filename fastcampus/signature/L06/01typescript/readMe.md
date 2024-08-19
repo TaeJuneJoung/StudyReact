@@ -494,3 +494,253 @@ add("hello", "world"); // hello world
 add(1, 2); // 3
 add("hello", 2); // x
 ```
+
+## 클래스와 접근 제어자
+
+### 접근 제어자(Access Modifiers)
+
+- public: 어디서나 자유롭게 접근 가능, 클래스 바디에서 생략 가능
+- protected - 나와 파생된 후손 클래스 내에서 접근 가능
+- private - 내 클래스에서만 접근 가능
+
+```ts
+class UserA {
+  public last: string = "";
+  public age: number = 0;
+
+  constructor(public first: string = "", last: string, age: number) {
+    // 외부에서 접근하게 할 때 파라미터로 public을 줘도 됨. 다만 외부 접근 허용시에 public 생략하면 안된다.
+    this.first = first;
+    this.last = last;
+    this.age = age;
+  }
+
+  protected getAge() {
+    return `${this.first} ${this.last} is ${this.age}`;
+  }
+}
+
+class UserB extends UserA {
+  getAge() {
+    return `${this.first} ${this.last} is ${this.age}`;
+  }
+}
+
+class UserC extends UserB {
+  getAge() {
+    return `${this.first} ${this.last} is ${this.age}`;
+  }
+}
+
+const user = new UserA("June", "J", 33);
+console.log(user.first);
+console.log(user.last);
+console.log(user.age);
+```
+
+## 제네릭
+
+### 함수
+
+```ts
+interface Obj {
+  x: number;
+}
+type Arr = [number, number];
+
+function toArray(a: string, b: string): string[];
+function toArray(a: number, b: number): number[];
+function toArray(a: boolean, b: boolean): boolean[];
+function toArray(a: Obj, b: Obj): Obj[];
+function toArray(a: Arr, b: Arr): Arr[];
+function toArray(a: any, b: any) {
+  return [a, b];
+}
+
+console.log(
+  toArray("Neo", "J"),
+  toArray(1, 2),
+  toArray(true, false),
+  toArray({ x: 1 }, { x: 2 }),
+  toArray([1, 2], [3, 4])
+);
+
+// 제너릭 적용
+function toArray<T>(a: T, b: T): T[] {
+  return [a, b];
+}
+
+console.log(
+  toArray<string>("Neo", "J"),
+  toArray<number>(1, 2),
+  toArray<boolean>(true, false),
+  toArray({ x: 1 }, { x: 2 }),
+  toArray<Arr>([1, 2], [3, 4])
+);
+```
+
+### 클래스
+
+```ts
+class User<P> {
+  constructor(public payload: P) {}
+  getPayload() {
+    return this.payload;
+  }
+}
+
+interface UserAType {
+  name: string;
+  age: number;
+  isValid: boolean;
+}
+
+interface UserBType {
+  name: string;
+  age: number;
+  emails: string[];
+}
+
+const person = new User({
+  name: "J",
+  age: 33,
+  isValid: true,
+  emails: [],
+});
+
+const neo = new User({
+  name: "Neo",
+  emails: ["A@B.com"],
+});
+
+console.log(person.getPayload());
+console.log(neo.getPayload());
+```
+
+### 인터페이스
+
+```ts
+interface MyData<T> {
+  name: string;
+  value: T;
+}
+
+const dataA: MyData<string> = {
+  name: "Data A",
+  value: "Hello World",
+};
+const dataB: MyData<number> = {
+  name: "Data B",
+  value: 1234,
+};
+const dataC: MyData<boolean> = {
+  name: "Data C",
+  value: false,
+};
+const dataD: MyData<number[]> = {
+  name: "Data D",
+  value: [1, 2, 3, 4],
+};
+
+interface MyData<T extends string | number> {
+  // 제약조건
+  name: string;
+  value: T;
+}
+```
+
+## 패키지의 타입 선언
+
+```ts
+import _ from "lodash";
+
+const str = "the brown fox jumps over the lazy dog.";
+
+console.log(_.camelCase(str));
+console.log(_.snakeCase(str));
+```
+
+lodash 라이브러리를 설치하기 위해서
+
+```bash
+$ npm install lodash
+```
+
+이렇게 해도 TS에서 사용하기 위해서는 @type 설치를 하거나 정의를 내려줘야 하기에 에러가 발생한다.
+
+**라이브러리명.d.ts**
+
+```ts
+declare module "lodash" {
+  interface Lodash {
+    camelCase: (str: string) => string;
+    snakeCase: (str: string) => string;
+  }
+
+  const _: Lodash;
+  export default _;
+}
+```
+
+이름을 기반으로 찾는데 이름을 다르게 했다면,
+
+```ts
+/// <reference path="./main.d.ts" />
+import _ from "lodash";
+
+const str = "the brown fox jumps over the lazy dog.";
+
+console.log(_.camelCase(str));
+console.log(_.snakeCase(str));
+```
+
+`///`: 삼중 슬래시 지시자
+
+**정의된 타입 설치**
+
+https://github.com/DefinitelyTyped/DefinitelyTyped
+
+```bash
+$ npm install --save-dev @types/lodash
+```
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2015",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "strict": true,
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+```
+
+tsconfig.json 설정에 `"typeRoots": ["./node_modules/@types"]` 내용이 작성하지 않아도 default로 적용되어 있다.
+
+## tsconfig.json 구성 옵션
+
+⭐TODO: 해당 부분은 다시 듣고 정리 한 번 더 할 것!
+
+- compilerOptions: 컴파일러 옵션 지정, JavaScript로 변환하기 위해서 어떤 옵션들이 세부적으로 또 필요한지 결정해주는 옵션
+  - target: 컴파일될 ES(JS)버전 명시 - ES2015권장
+  - module: 모듈 시스템 지정 - CommonJS, AMD, ESNext
+  - moduleResolution: 모듈 해석 방식 지정 - Node, Classic
+  - esModuleInterop: ESM모듈 방식 호환성 활성화 여부
+  - isolatedModules: 모든 파일을 모듈로 컴파일, import 혹은 export 키워드 필수
+  - baseUrl: 모듈 해석에 사용할 기준 경로 지정
+  - typeRoots: 컴파일러가 참조할 타입 선언(d.ts)의 경로를 지정
+  - lib: 컴파일에서 사용할 라이브러리 지정 - ESNext, DOM
+  - strict: 더 엄격한 타입 검색 활성화
+  - noImplicitAny: 암시적 any타입 검사 활성화
+  - noImplicitThis: 암시적 this타입 검사 활성화
+  - strictNullChecks: 엄격한 Nullish타입 검사 활성화
+  - strictFunctionTypes: 엄격한 함수의 매개변수 타입 검사 활성화
+  - strictPropertyInitialization: 엄격한 클래스의 속성 초기화 검사 활성화
+  - strictBindCallApply: 엄격한 Bind, Call, Apply 메소드의 인수 검사 활성화
+- include: 컴파일 할 파일 경로 목록
+- exclude: 컴파일에서 제외할 파일 경로 목록
