@@ -400,3 +400,97 @@ interface FullName {
   lastName: boolean; // 에러 발생 -> 기존 위에 동일한 명의 인터페이스에 영향을 받음 -> string으로 같으면 문제 없어짐
 }
 ```
+
+## 타입 별칭(Alias)
+
+```ts
+type TypeA = string;
+type TypeB = string | number | boolean;
+type User =
+  | {
+      name: string;
+      age: number;
+      isValid: boolean;
+    }
+  | [string, number, boolean];
+
+const userA: User = {
+  name: "A",
+  age: 33,
+  isValid: true,
+};
+
+const userB: User = ["Evan", 36, false];
+
+function someFunc(param: TypeB): TypeA {
+  switch (typeof param) {
+    case "string":
+      return param.toUpperCase();
+    case "number":
+      return param.toFixed(2);
+    default:
+      return "Boolean";
+  }
+}
+```
+
+**타입 별칭을 사용할지 인터페이스를 사용할지**
+
+기능적인 차이는 없으나 권장하는 방식은 인터페이스
+
+타입 별칭은 객체 데이터의 타입을 만드는 구조라기보다는 다양한 타입의 별칭을 지정하는 용도라서 조금 더 사용 범위가 넓은데 인터페이스는 기본적으로 객체 데이터를 전제하기 때문에
+
+```ts
+type TypeUser = {
+  name: string;
+  age: number;
+  isValid: boolean;
+};
+
+interface InterfaceUser {
+  name: string;
+  age: number;
+  isValid: boolean;
+}
+
+const personA: InterfaceUser = {
+  name: "A",
+  age: 33,
+  isValid: true,
+};
+```
+
+## 함수
+
+### 명시적 thi타입
+
+```ts
+interface Cat {
+  name: string;
+  age: number;
+}
+const cat: Cat = {
+  name: "Lucy",
+  age: 3,
+};
+
+function hello(this: Cat, message: string) {
+  // this를 명시적으로 쓰지 않으면 Any타입으로 받기에 TypeScript에서 명시적으로 사용하는 문법적 방법
+  console.log(`Hello ${this.name}, ${message}`);
+}
+hello.call(cat, "You are pretty awesome!");
+```
+
+### 오버로딩(Overloading)
+
+```ts
+function add(a: string, b: string): string; // 타입 선언
+function add(a: number, b: number): number; // 타입 선언
+function add(a: any, b: any) {
+  // 함수 구현
+  return a + b;
+}
+add("hello", "world"); // hello world
+add(1, 2); // 3
+add("hello", 2); // x
+```
