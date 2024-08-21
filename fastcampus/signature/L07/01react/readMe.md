@@ -98,3 +98,139 @@ const handleClick = () => {
 이렇게 했을 때 alert의 결과는 어떠할까? 스냅샷 원리와 동일하게 +1 된 값이 아닌 이전값이 나오게 된다.
 
 `setNum(num + 1);`로 진행해도 결과는 동일하다.
+
+## useReducer
+
+:TODO:강의 내용만으로는 너무 별로.. 따로 정리가 필요할듯
+강사가 강의를 너무 못한다... React 부분은 강사가 강의도 못하고 예시도 너무 적절하지 못함.
+
+## Context API
+
+props drilling에 빠지는 문제가 발생하기에 이를 해결하기 위한 방도.
+
+```tsx
+import { createContext, useContext } from "react";
+
+const MyContext = createContext(null);
+
+export const MyProvider = ({ children }) => {
+  const value = { data: "hello world" };
+  return <MyContext.Provider value={value}>{children}</MyContext.Provider>;
+};
+
+export const MyComponent = () => {
+  const context = useContext(MyContext);
+  return <div>{context.data}</div>;
+};
+```
+
+```tsx
+import { createContext, useContext, useState } from "react";
+
+const ThemeContext = createContext("light");
+
+export const ThemeProvider = ({ children }) => {
+  const [theme, setTheme] = useState("light");
+
+  const handleToggle = () => {
+    setTheme((pre) => (pre === "light" ? "dark" : "light"));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, onToggle: handleToggle }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const ThemeComponent = () => {
+  const { theme, onToggle } = useContext(ThemeContext);
+
+  return (
+    <div
+      style={{
+        background: theme === "light" ? "#fff" : "#333",
+        color: theme === "light" ? "#000" : "#fff",
+      }}
+    >
+      <h1>Theme: {theme}</h1>
+      <button onClick={onToggle}>Toggle</button>
+    </div>
+  );
+};
+```
+
+```tsx
+import { MyProvider, MyComponent } from "./contexts/MyContext";
+import { ThemeComponent, ThemeProvider } from "./contexts/ThemeContext";
+
+function App() {
+  return (
+    <>
+      <MyProvider>
+        <MyComponent />
+      </MyProvider>
+      <ThemeProvider>
+        <ThemeComponent />
+      </ThemeProvider>
+    </>
+  );
+}
+
+export default App;
+```
+
+## useRef
+
+```tsx
+import { useState, useRef } from "react";
+
+function App() {
+  const [seconds, setSeconds] = useState(0);
+  const timerRef = useRef<number | undefined>(undefined);
+
+  const handleStart = () => {
+    if (timerRef.current) return;
+    timerRef.current = setInterval(() => {
+      setSeconds((prev: number) => prev + 1);
+    }, 1000);
+  };
+
+  const handleEnd = () => {
+    clearInterval(timerRef.current);
+    timerRef.current = undefined;
+  };
+  return (
+    <>
+      <h1>Timer: {seconds}</h1>
+      <button onClick={handleStart}>Start</button>
+      <button onClick={handleEnd}>End</button>
+    </>
+  );
+}
+
+export default App;
+```
+
+```tsx
+function FoucusInput() {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  return (
+    <div>
+      <input type="text" ref={inputRef} />
+      <button onClick={handleClick}>Focus</button>
+    </div>
+  );
+}
+```
+
+## useEffect
+
+## Virtual DOM, Reconciliation(재조정)
