@@ -101,8 +101,277 @@ const handleClick = () => {
 
 ## useReducer
 
-:TODO:강의 내용만으로는 너무 별로.. 따로 정리가 필요할듯
-강사가 강의를 너무 못한다... React 부분은 강사가 강의도 못하고 예시도 너무 적절하지 못함.
+reducer 사용하여 state로직 통합
+
+컴포넌트가 복잡해지면 컴포넌트의 state 업데이트 되는 다양한 경우를 한눈에 파악하기 어려워진다.
+
+### useState를 사용한 예시 코드
+
+```tsx
+import { useState } from "react";
+
+import type { taskProp } from "./models/Task";
+
+import AddTask from "./components/AddTask";
+import TaskList from "./components/TaskList";
+
+let nextId: number = 0;
+
+function App() {
+  const [tasks, setTasks] = useState<taskProp[]>([])
+
+  function handleAddTask(text: string) {
+    setTasks([ 
+      ...tasks,
+      {
+        id: nextId++,
+        text: text,
+        done: false
+      }
+    ])
+  }
+
+  function handleChangeTask(task: taskProp) {
+    setTasks(tasks.map(t => {
+      if(t.id === task.id) {
+        return task
+      } else {
+        return t
+      }
+    }))
+  }
+
+  function handleDeleteTask(taskId: number) {
+    setTasks(
+      tasks.filter(task => task.id !== taskId)
+    )
+  }
+
+  return (
+    <>
+      <AddTask onAddTask={handleAddTask} />
+      <TaskList tasks={tasks} onChange={handleChangeTask} onDelete={handleDeleteTask} />
+    </>
+  );
+}
+
+export default App;
+```
+
+```ts
+export interface taskProp {
+  id: number
+  text: string
+  done: boolean
+}
+
+export interface TaskListProps {
+  tasks: taskProp[]
+  onChange: (task: taskProp) => void
+  onDelete: (taskId: number) => void
+}
+
+export interface TaskProps {
+  task: taskProp
+  onChange: (task: taskProp) => void
+  onDelete: (taskId: number) => void
+}
+
+export interface AddTaskProps {
+  onAddTask: (text: string) => void
+}
+```
+
+```tsx
+import { useRef } from "react";
+
+import type { AddTaskProps } from "../models/Task"; 
+
+export default function AddTask({onAddTask}: AddTaskProps) {
+  const textRef = useRef<HTMLInputElement>(null)
+  return (
+    <>
+      <input
+        placeholder="Add task"
+        ref={textRef}
+      />
+      <button onClick={() => {
+        onAddTask(textRef.current?.value || "")
+      }}>Add</button>
+
+    </>
+  )
+}
+```
+
+```tsx
+import { useState } from "react";
+
+import type { TaskProps, TaskListProps } from "../models/Task";
+
+export default function TaskList({
+  tasks,
+  onChange,
+  onDelete
+}: TaskListProps) {
+  return (
+    <ul>
+      {tasks.map(task => (
+        <li key={task.id}>
+          <Task
+            task={task}
+            onChange={onChange}
+            onDelete={onDelete}
+          />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function Task({task, onChange, onDelete}: TaskProps) {
+  const [isEditing, setIsEditing] = useState(false)
+  let taskContent;
+
+  if (isEditing) {
+    taskContent = (
+      <>
+        <input
+          value={task.text}
+          onChange={e => {
+            onChange({
+              ...task,
+              text: e.target.value
+            })
+          }}
+        />
+        <button onClick={() => {
+          setIsEditing(false)
+        }}>Save</button>
+      </>
+    )
+  } else {
+    taskContent = (
+      <>
+        {task.text}
+        <button onClick={() => {
+          setIsEditing(true)
+        }}>Edit</button>
+      </>
+    )
+  }
+
+  return (
+    <label>
+      <input
+        type="checkbox"
+        checked={task.done}
+        onChange={e => {
+          onChange({
+            ...task,
+            done: e.target.checked
+          })
+        }}
+      />
+      {taskContent}
+      <button onClick={() => onDelete(task.id)}>
+        Delete
+      </button>
+    </label>
+  )
+}
+```
+
+
+### useReducer 사용한 예시 코드
+
+- handleAddTask
+- handleChangeTask
+- handleDeleteTask
+
+```ts
+// Task.ts : Action Type 추가
+export type Action =
+| { type: 'added'; id: number; text: string }
+| { type: 'changed'; task: taskProp }
+| { type: 'deleted'; id: number };
+```
+
+```tsx
+import { useReducer } from "react";
+
+import type { taskProp, Action } from "./models/Task";
+
+import AddTask from "./components/AddTask";
+import TaskList from "./components/TaskList";
+
+let nextId: number = 0;
+
+function tasksReducer(tasks: taskProp[], action: Action) {
+  switch (action.type) {
+    case 'added': {
+      return [ ...tasks, {
+        id: action.id,
+        text: action.text,
+        done: false
+      }]
+    }
+    case 'changed': {
+      return tasks.map(t => {
+        if (t.id !== action.task.id) {
+          return action.task
+        } else {
+          return t
+        }
+      })
+    }
+    case 'deleted': {
+      return tasks.filter(t => t.id !== action.id)
+    }
+    default: {
+      throw Error("Unkown action") // default 일때 action.type은 뭐지?
+    }
+  }
+}
+
+function App() {
+  const [tasks, dispatch] = useReducer(
+    tasksReducer,
+    []
+  )
+
+  function handleAddTask(text: string) {
+    dispatch({
+      type: 'added',
+      id: nextId++,
+      text: text
+    })
+  }
+
+  function handleChangeTask(task: taskProp) {
+    dispatch({
+      type: 'changed',
+      task: task
+    })
+  }
+
+  function handleDeleteTask(taskId: number) {
+    dispatch({
+      type: 'deleted',
+      id: taskId
+    })
+  }
+
+  return (
+    <>
+      <AddTask onAddTask={handleAddTask} />
+      <TaskList tasks={tasks} onChange={handleChangeTask} onDelete={handleDeleteTask} />
+    </>
+  );
+}
+
+export default App;
+```
 
 ## Context API
 
@@ -231,6 +500,34 @@ function FoucusInput() {
 }
 ```
 
+https://ko.react.dev/learn/extracting-state-logic-into-a-reducer
+
+
 ## useEffect
+
+주로 외부 시스템과 동기화해야할 때 사용
+
+기본적으로, Effect는 모든 렌더링 후에 실행된다.
+
+⚠️아래와 같은 코드는 무한 루프를 만들어낸다.
+
+```ts
+const [count, setCount] = useState(0);
+useEffect(() => {
+  setCount(count + 1)
+})
+```
+
+React에게 Effect를 불필요하게 다시 실행하지 않도록 지시하려면 두 번째 인자로 의존성 배열을 지정한다.
+
+```ts
+useEffect(() => {
+  // ...
+}, [])
+```
+
+TODO: 더 정리할 것
+
+https://ko.react.dev/learn/synchronizing-with-effects
 
 ## Virtual DOM, Reconciliation(재조정)
