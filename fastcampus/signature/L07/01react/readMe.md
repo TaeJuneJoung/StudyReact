@@ -118,39 +118,43 @@ import TaskList from "./components/TaskList";
 let nextId: number = 0;
 
 function App() {
-  const [tasks, setTasks] = useState<taskProp[]>([])
+  const [tasks, setTasks] = useState<taskProp[]>([]);
 
   function handleAddTask(text: string) {
-    setTasks([ 
+    setTasks([
       ...tasks,
       {
         id: nextId++,
         text: text,
-        done: false
-      }
-    ])
+        done: false,
+      },
+    ]);
   }
 
   function handleChangeTask(task: taskProp) {
-    setTasks(tasks.map(t => {
-      if(t.id === task.id) {
-        return task
-      } else {
-        return t
-      }
-    }))
+    setTasks(
+      tasks.map((t) => {
+        if (t.id === task.id) {
+          return task;
+        } else {
+          return t;
+        }
+      })
+    );
   }
 
   function handleDeleteTask(taskId: number) {
-    setTasks(
-      tasks.filter(task => task.id !== taskId)
-    )
+    setTasks(tasks.filter((task) => task.id !== taskId));
   }
 
   return (
     <>
       <AddTask onAddTask={handleAddTask} />
-      <TaskList tasks={tasks} onChange={handleChangeTask} onDelete={handleDeleteTask} />
+      <TaskList
+        tasks={tasks}
+        onChange={handleChangeTask}
+        onDelete={handleDeleteTask}
+      />
     </>
   );
 }
@@ -160,47 +164,47 @@ export default App;
 
 ```ts
 export interface taskProp {
-  id: number
-  text: string
-  done: boolean
+  id: number;
+  text: string;
+  done: boolean;
 }
 
 export interface TaskListProps {
-  tasks: taskProp[]
-  onChange: (task: taskProp) => void
-  onDelete: (taskId: number) => void
+  tasks: taskProp[];
+  onChange: (task: taskProp) => void;
+  onDelete: (taskId: number) => void;
 }
 
 export interface TaskProps {
-  task: taskProp
-  onChange: (task: taskProp) => void
-  onDelete: (taskId: number) => void
+  task: taskProp;
+  onChange: (task: taskProp) => void;
+  onDelete: (taskId: number) => void;
 }
 
 export interface AddTaskProps {
-  onAddTask: (text: string) => void
+  onAddTask: (text: string) => void;
 }
 ```
 
 ```tsx
 import { useRef } from "react";
 
-import type { AddTaskProps } from "../models/Task"; 
+import type { AddTaskProps } from "../models/Task";
 
-export default function AddTask({onAddTask}: AddTaskProps) {
-  const textRef = useRef<HTMLInputElement>(null)
+export default function AddTask({ onAddTask }: AddTaskProps) {
+  const textRef = useRef<HTMLInputElement>(null);
   return (
     <>
-      <input
-        placeholder="Add task"
-        ref={textRef}
-      />
-      <button onClick={() => {
-        onAddTask(textRef.current?.value || "")
-      }}>Add</button>
-
+      <input placeholder="Add task" ref={textRef} />
+      <button
+        onClick={() => {
+          onAddTask(textRef.current?.value || "");
+        }}
+      >
+        Add
+      </button>
     </>
-  )
+  );
 }
 ```
 
@@ -209,28 +213,20 @@ import { useState } from "react";
 
 import type { TaskProps, TaskListProps } from "../models/Task";
 
-export default function TaskList({
-  tasks,
-  onChange,
-  onDelete
-}: TaskListProps) {
+export default function TaskList({ tasks, onChange, onDelete }: TaskListProps) {
   return (
     <ul>
-      {tasks.map(task => (
+      {tasks.map((task) => (
         <li key={task.id}>
-          <Task
-            task={task}
-            onChange={onChange}
-            onDelete={onDelete}
-          />
+          <Task task={task} onChange={onChange} onDelete={onDelete} />
         </li>
       ))}
     </ul>
-  )
+  );
 }
 
-function Task({task, onChange, onDelete}: TaskProps) {
-  const [isEditing, setIsEditing] = useState(false)
+function Task({ task, onChange, onDelete }: TaskProps) {
+  const [isEditing, setIsEditing] = useState(false);
   let taskContent;
 
   if (isEditing) {
@@ -238,27 +234,35 @@ function Task({task, onChange, onDelete}: TaskProps) {
       <>
         <input
           value={task.text}
-          onChange={e => {
+          onChange={(e) => {
             onChange({
               ...task,
-              text: e.target.value
-            })
+              text: e.target.value,
+            });
           }}
         />
-        <button onClick={() => {
-          setIsEditing(false)
-        }}>Save</button>
+        <button
+          onClick={() => {
+            setIsEditing(false);
+          }}
+        >
+          Save
+        </button>
       </>
-    )
+    );
   } else {
     taskContent = (
       <>
         {task.text}
-        <button onClick={() => {
-          setIsEditing(true)
-        }}>Edit</button>
+        <button
+          onClick={() => {
+            setIsEditing(true);
+          }}
+        >
+          Edit
+        </button>
       </>
-    )
+    );
   }
 
   return (
@@ -266,22 +270,19 @@ function Task({task, onChange, onDelete}: TaskProps) {
       <input
         type="checkbox"
         checked={task.done}
-        onChange={e => {
+        onChange={(e) => {
           onChange({
             ...task,
-            done: e.target.checked
-          })
+            done: e.target.checked,
+          });
         }}
       />
       {taskContent}
-      <button onClick={() => onDelete(task.id)}>
-        Delete
-      </button>
+      <button onClick={() => onDelete(task.id)}>Delete</button>
     </label>
-  )
+  );
 }
 ```
-
 
 ### useReducer 사용한 예시 코드
 
@@ -292,9 +293,9 @@ function Task({task, onChange, onDelete}: TaskProps) {
 ```ts
 // Task.ts : Action Type 추가
 export type Action =
-| { type: 'added'; id: number; text: string }
-| { type: 'changed'; task: taskProp }
-| { type: 'deleted'; id: number };
+  | { type: "added"; id: number; text: string }
+  | { type: "changed"; task: taskProp }
+  | { type: "deleted"; id: number };
 ```
 
 ```tsx
@@ -309,63 +310,67 @@ let nextId: number = 0;
 
 function tasksReducer(tasks: taskProp[], action: Action) {
   switch (action.type) {
-    case 'added': {
-      return [ ...tasks, {
-        id: action.id,
-        text: action.text,
-        done: false
-      }]
+    case "added": {
+      return [
+        ...tasks,
+        {
+          id: action.id,
+          text: action.text,
+          done: false,
+        },
+      ];
     }
-    case 'changed': {
-      return tasks.map(t => {
+    case "changed": {
+      return tasks.map((t) => {
         if (t.id !== action.task.id) {
-          return action.task
+          return action.task;
         } else {
-          return t
+          return t;
         }
-      })
+      });
     }
-    case 'deleted': {
-      return tasks.filter(t => t.id !== action.id)
+    case "deleted": {
+      return tasks.filter((t) => t.id !== action.id);
     }
     default: {
-      throw Error("Unkown action") // default 일때 action.type은 뭐지?
+      throw Error("Unkown action"); // default 일때 action.type은 뭐지?
     }
   }
 }
 
 function App() {
-  const [tasks, dispatch] = useReducer(
-    tasksReducer,
-    []
-  )
+  const [tasks, dispatch] = useReducer(tasksReducer, []);
 
   function handleAddTask(text: string) {
     dispatch({
-      type: 'added',
+      type: "added",
       id: nextId++,
-      text: text
-    })
+      text: text,
+    });
   }
 
   function handleChangeTask(task: taskProp) {
     dispatch({
-      type: 'changed',
-      task: task
-    })
+      type: "changed",
+      task: task,
+    });
   }
 
   function handleDeleteTask(taskId: number) {
     dispatch({
-      type: 'deleted',
-      id: taskId
-    })
+      type: "deleted",
+      id: taskId,
+    });
   }
 
   return (
     <>
       <AddTask onAddTask={handleAddTask} />
-      <TaskList tasks={tasks} onChange={handleChangeTask} onDelete={handleDeleteTask} />
+      <TaskList
+        tasks={tasks}
+        onChange={handleChangeTask}
+        onDelete={handleDeleteTask}
+      />
     </>
   );
 }
@@ -502,7 +507,6 @@ function FoucusInput() {
 
 https://ko.react.dev/learn/extracting-state-logic-into-a-reducer
 
-
 ## useEffect
 
 주로 외부 시스템과 동기화해야할 때 사용
@@ -514,8 +518,8 @@ https://ko.react.dev/learn/extracting-state-logic-into-a-reducer
 ```ts
 const [count, setCount] = useState(0);
 useEffect(() => {
-  setCount(count + 1)
-})
+  setCount(count + 1);
+});
 ```
 
 React에게 Effect를 불필요하게 다시 실행하지 않도록 지시하려면 두 번째 인자로 의존성 배열을 지정한다.
@@ -523,10 +527,54 @@ React에게 Effect를 불필요하게 다시 실행하지 않도록 지시하려
 ```ts
 useEffect(() => {
   // ...
-}, [])
+}, []);
 ```
 
-TODO: 더 정리할 것
+⚠️의존성 배열이 없는 경우와 빈`[]` 의존성 배열이 있는 경우 동작이 다르다.
+
+```ts
+useEffect(() => {
+  // 모든 렌더링 후에 실행
+});
+
+useEffect(() => {
+  // 마운트될 때만 실행(컴포넌트가 나타날 때)
+}, []);
+
+useEffect(() => {
+  // 마운트될 때 실행되며, 렌더링 이후에 a 또는 b 중 하나라도 변경된 경우에도 실행
+}, [a, b]);
+```
+
+👴왜 ref는 의존성 배열에서 생략해도 되는가?
+
+ref객체가 안정된 식별성(stable identity)을 가지기 때문
+
+React는 동일한 `useRef`호출에서 항상 같은 객체를 얻을 수 있음을 보장한다. 의존성 배열에 포함하든 않든 상관없다.
+
+useState로 반환되는 `set`함수들도 안정된 식별성을 가지기 때문에 종종 이러한 함수들도 의존성에서 생략되는 것을 볼 수 있다. lint가 의존성을 생략해도 오류를 표시하지 않는다면 그렇게 해도 안전하다.
+
+ref가 부모 컴포넌트에서 전달되었다면 의존성 배열에 명시해야 한다. 부모 컴포넌트가 항상 동일한 ref를 전달하는지 또는 여러 ref 중 하나를 조건부로 전달하는지 알 수 없기 때문이다.
+
+**클린업 함수 반환**
+
+```ts
+useEffect(() => {
+  const connection = createConnection();
+  connection.connect();
+  return () => {
+    connection.disconnect();
+  };
+}, []);
+
+만약, Effect가 어떤 것을 구독(이벤트)한다면, 클린업 함수에서 구독을 해지해야 한다.
+
+애니메이션으로 표시하는 경우는 클린업 함수에서 애니메이션을 초기 값으로 재설정해야 한다.
+
+데이터를 가져온다면, 클린업 함수에서는 fetch를 중단하거나 결과를 무시해야 한다.
+
+
+```
 
 https://ko.react.dev/learn/synchronizing-with-effects
 
